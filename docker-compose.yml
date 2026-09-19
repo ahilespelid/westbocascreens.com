@@ -1,0 +1,72 @@
+name: apexflow
+services:
+  db:
+    image: mysql:8.0
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+    volumes:
+      - db_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-p${MYSQL_ROOT_PASSWORD}"]
+      interval: 5s
+      timeout: 5s
+      retries: 30
+    networks: [apexflow]
+
+  wordpress:
+    image: wordpress:php8.3-fpm
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      WORDPRESS_DB_HOST: db
+      WORDPRESS_DB_USER: ${MYSQL_USER}
+      WORDPRESS_DB_PASSWORD: ${MYSQL_PASSWORD}
+      WORDPRESS_DB_NAME: ${MYSQL_DATABASE}
+      WORDPRESS_TABLE_PREFIX: wp_
+    volumes:
+      - wp_data:/var/www/html
+      - ./wp-content/mu-plugins:/var/www/html/wp-content/mu-plugins:ro
+    depends_on:
+      db:
+        condition: service_healthy
+    networks: [apexflow]
+
+  nginx:
+    image: nginx:1.27-alpine
+    restart: unless-stopped
+    volumes:
+      - wp_data:/var/www/html:ro
+      - ./nginx/conf.d:/etc/nginx/conf.d:ro
+      - fastcgi_cache:/var/cache/nginx/fastcgi
+    depends_on:
+      - wordpress
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=edge"
+      - "traefik.http.routers.apexflow-secure.rule=Host(`westbocascreens.com`) || Host(`www.westbocascreens.com`)"
+      - "traefik.http.routers.apexflow-secure.entrypoints=websecure"
+      - "traefik.http.routers.apexflow-secure.tls=true"
+      - "traefik.http.routers.apexflow-secure.tls.certresolver=le"
+      - "traefik.http.routers.apexflow-secure.service=apexflow-svc"
+      - "traefik.http.services.apexflow-svc.loadbalancer.server.port=80"
+      - "traefik.http.routers.apexflow-http.rule=Host(`westbocascreens.com`) || Host(`www.westbocascreens.com`)"
+      - "traefik.http.routers.apexflow-http.entrypoints=web"
+      - "traefik.http.middlewares.apexflow-redirect.redirectscheme.scheme=https"
+      - "traefik.http.routers.apexflow-http.middlewares=apexflow-redirect"
+    networks: [apexflow, edge]
+
+volumes:
+  db_data:
+  wp_data:
+  fastcgi_cache:
+
+networks:
+  apexflow:
+    driver: bridge
+  edge:
+    external: true

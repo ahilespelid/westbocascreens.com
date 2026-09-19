@@ -1,0 +1,6 @@
+# secrets and runtime junk: never commit
+.env
+*.tmp
+*.log
+*.bak
+backups/
