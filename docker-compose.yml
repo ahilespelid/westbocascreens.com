@@ -1,4 +1,4 @@
-name: apexflow
+name: westbocascreens
 services:
   db:
     image: mysql:8.0
@@ -16,7 +16,7 @@ services:
       interval: 5s
       timeout: 5s
       retries: 30
-    networks: [apexflow]
+    networks: [internal]
 
   wordpress:
     image: wordpress:php8.3-fpm
@@ -29,18 +29,17 @@ services:
       WORDPRESS_DB_NAME: ${MYSQL_DATABASE}
       WORDPRESS_TABLE_PREFIX: wp_
     volumes:
-      - wp_data:/var/www/html
-      - ./wp-content/mu-plugins:/var/www/html/wp-content/mu-plugins:ro
+      - ./wordpress:/var/www/html
     depends_on:
       db:
         condition: service_healthy
-    networks: [apexflow]
+    networks: [internal]
 
   nginx:
     image: nginx:1.27-alpine
     restart: unless-stopped
     volumes:
-      - wp_data:/var/www/html:ro
+      - ./wordpress:/var/www/html:ro
       - ./nginx/conf.d:/etc/nginx/conf.d:ro
       - fastcgi_cache:/var/cache/nginx/fastcgi
     depends_on:
@@ -48,25 +47,24 @@ services:
     labels:
       - "traefik.enable=true"
       - "traefik.docker.network=edge"
-      - "traefik.http.routers.apexflow-secure.rule=Host(`westbocascreens.com`) || Host(`www.westbocascreens.com`)"
-      - "traefik.http.routers.apexflow-secure.entrypoints=websecure"
-      - "traefik.http.routers.apexflow-secure.tls=true"
-      - "traefik.http.routers.apexflow-secure.tls.certresolver=le"
-      - "traefik.http.routers.apexflow-secure.service=apexflow-svc"
-      - "traefik.http.services.apexflow-svc.loadbalancer.server.port=80"
-      - "traefik.http.routers.apexflow-http.rule=Host(`westbocascreens.com`) || Host(`www.westbocascreens.com`)"
-      - "traefik.http.routers.apexflow-http.entrypoints=web"
-      - "traefik.http.middlewares.apexflow-redirect.redirectscheme.scheme=https"
-      - "traefik.http.routers.apexflow-http.middlewares=apexflow-redirect"
-    networks: [apexflow, edge]
+      - "traefik.http.routers.westbocascreens-secure.rule=Host(`westbocascreens.com`) || Host(`www.westbocascreens.com`)"
+      - "traefik.http.routers.westbocascreens-secure.entrypoints=websecure"
+      - "traefik.http.routers.westbocascreens-secure.tls=true"
+      - "traefik.http.routers.westbocascreens-secure.tls.certresolver=le"
+      - "traefik.http.routers.westbocascreens-secure.service=westbocascreens-svc"
+      - "traefik.http.services.westbocascreens-svc.loadbalancer.server.port=80"
+      - "traefik.http.routers.westbocascreens-http.rule=Host(`westbocascreens.com`) || Host(`www.westbocascreens.com`)"
+      - "traefik.http.routers.westbocascreens-http.entrypoints=web"
+      - "traefik.http.middlewares.westbocascreens-redirect.redirectscheme.scheme=https"
+      - "traefik.http.routers.westbocascreens-http.middlewares=westbocascreens-redirect"
+    networks: [internal, edge]
 
 volumes:
   db_data:
-  wp_data:
   fastcgi_cache:
 
 networks:
-  apexflow:
+  internal:
     driver: bridge
   edge:
     external: true

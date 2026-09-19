@@ -4,3 +4,9 @@
 *.log
 *.bak
 backups/
+
+# WordPress: secrets (salts in wp-config.php) and runtime
+wordpress/wp-config.php
+wordpress/wp-content/cache/
+wordpress/wp-content/upgrade/
+wordpress/.maintenance
