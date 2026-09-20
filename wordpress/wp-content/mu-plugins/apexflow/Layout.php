@@ -1,0 +1,112 @@
+<?php
+/**
+ * Каркас страницы: настройки темы GeneratePress, верхняя плашка с гео и CTA,
+ * подвал с картой и ZIP-кодами, липкая кнопка звонка на мобильных.
+ */
+
+namespace ApexFlow;
+
+// Прямой вызов файла мимо WordPress запрещён.
+if (!defined('ABSPATH')) {
+    exit;
+}
+
+final class Layout
+{
+    /**
+     * Подписка на хуки модуля.
+     *
+     * @return void
+     */
+    public static function register(): void
+    {
+        // Сайдбар не нужен ни на одной странице: макет одноколоночный.
+        add_filter('generate_sidebar_layout', static fn (): string => 'no-sidebar');
+
+        // Заголовок страницы темой не выводим — в контенте каждой страницы свой H1.
+        add_filter('generate_show_title', '__return_false');
+
+        // Контент страниц — это свёрстанный HTML, а не проза: wpautop расставляет
+        // лишние <p> и <br> внутри grid- и flex-контейнеров и ломает сетку.
+        remove_filter('the_content', 'wpautop');
+
+        // Копирайт в подвале темы: год подставляется автоматически.
+        add_filter('generate_copyright', [self::class, 'copyright']);
+
+        // Верхняя плашка печатается сразу после открытия <body>.
+        add_action('wp_body_open', [self::class, 'renderTopBar']);
+
+        // Липкая кнопка звонка — в подвал, приоритет по умолчанию.
+        add_action('wp_footer', [self::class, 'renderCallButton']);
+
+        // Подвал с картой печатается после кнопки: приоритет 30 сохраняет прежний порядок.
+        add_action('wp_footer', [self::class, 'renderFooter'], 30);
+    }
+
+    /**
+     * Строка копирайта в подвале темы.
+     *
+     * @return string Готовый HTML-текст копирайта.
+     */
+    public static function copyright(): string
+    {
+        // date('Y') вычисляется при каждом запросе, поэтому год не протухает первого января.
+        return 'Copyright &copy; ' . esc_html(date('Y')) . ' ' . esc_html(Config::BRAND) . '. All rights reserved.';
+    }
+
+    /**
+     * Верхняя плашка: зона обслуживания, слоган, телефон и кнопка запроса сметы.
+     *
+     * @return void
+     */
+    public static function renderTopBar(): void
+    {
+        ?>
+        <div class="afn-geo-badge">Serving West Boca Raton &amp; Exclusive Gated Communities &mdash; ZIP <?php echo esc_html(Config::zipList()); ?></div>
+        <div class="afn-tagline">Wow, the Apex Flow isn&rsquo;t changing.</div>
+        <div class="afn-header-actions">
+            <a href="tel:<?php echo esc_attr(Config::PHONE_TEL); ?>" class="afn-header-phone">&#128222; <?php echo esc_html(Config::PHONE_DISPLAY); ?></a>
+            <a href="#quote" class="afn-header-cta">Get a Free In-Home Estimate</a>
+        </div>
+        <?php
+    }
+
+    /**
+     * Липкая кнопка звонка: видна только на мобильных, прижата к нижней кромке экрана.
+     *
+     * @return void
+     */
+    public static function renderCallButton(): void
+    {
+        ?>
+        <a href="tel:<?php echo esc_attr(Config::PHONE_TEL); ?>" class="afn-mobile-call-btn">
+            <span class="afn-icon" aria-hidden="true">&#128222;</span> CALL NOW: <?php echo esc_html(Config::PHONE_DISPLAY); ?>
+        </a>
+        <?php
+    }
+
+    /**
+     * Подвал: карта зоны обслуживания, ZIP-коды и кредит разработчика.
+     *
+     * @return void
+     */
+    public static function renderFooter(): void
+    {
+        ?>
+        <div class="afn-footer">
+            <div class="afn-footer-inner">
+                <iframe src="https://www.google.com/maps?q=West+Boca+Raton,FL&output=embed" width="100%" height="280" style="border:0;" loading="lazy" referrerpolicy="no-referrer-when-downgrade" title="<?php echo esc_attr(Config::BRAND); ?> service area map"></iframe>
+                <div class="afn-footer-zips">
+                    <strong><?php echo esc_html(Config::BRAND); ?></strong> &mdash; Licensed &amp; Fully Insured | Serving West Boca Raton, FL and surrounding areas: ZIP codes <?php echo esc_html(Config::zipList()); ?>.<br>
+                    Call <?php echo esc_html(Config::PHONE_DISPLAY); ?> for a Free In-Home Estimate.
+                </div>
+            </div>
+            <div class="afn-dev-credit">
+                Site developed by <a href="https://github.com/ahilespelid/" target="_blank" rel="noopener noreferrer">ahilespelid</a>
+                &nbsp;&middot;&nbsp;
+                Found a bug or have a business inquiry? <a href="https://messenger.apexflowus.com/" target="_blank" rel="noopener noreferrer">Contact the developer or commercial director</a>
+            </div>
+        </div>
+        <?php
+    }
+}
