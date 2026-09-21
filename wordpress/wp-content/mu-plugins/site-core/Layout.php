@@ -44,8 +44,9 @@ final class Layout
         // Липкая кнопка звонка — в подвал, приоритет по умолчанию.
         add_action('wp_footer', [self::class, 'renderCallButton']);
 
-        // Подвал с картой печатается после кнопки: приоритет 30 сохраняет прежний порядок.
-        add_action('wp_footer', [self::class, 'renderFooter'], 30);
+        // Подвал с картой — на хуке темы перед её собственным подвалом: так строка
+        // копирайта остаётся в самом низу, а не висит между контентом и нашим подвалом.
+        add_action('generate_before_footer', [self::class, 'renderFooter']);
     }
 
     /**
@@ -104,7 +105,7 @@ final class Layout
         ?>
         <div class="sc-footer">
             <div class="sc-footer-inner">
-                <iframe src="https://www.google.com/maps?q=West+Boca+Raton,FL&output=embed" width="100%" height="280" style="border:0;" loading="lazy" referrerpolicy="no-referrer-when-downgrade" title="<?php echo esc_attr(Config::BRAND); ?> service area map"></iframe>
+                <iframe src="https://www.google.com/maps?q=West+Boca+Raton,FL&output=embed" height="280" class="sc-footer-map" loading="lazy" referrerpolicy="no-referrer-when-downgrade" title="<?php echo esc_attr(Config::BRAND); ?> service area map"></iframe>
                 <div class="sc-footer-zips">
                     <p class="sc-footer-status">We are the region&rsquo;s most experienced manufacturer and installer of remote-controlled motorized retractable roll screens and awnings.</p>
                     <strong><?php echo esc_html(Config::BRAND); ?></strong> &mdash; Licensed &amp; Fully Insured | Serving West Boca Raton, FL and surrounding areas: ZIP codes <?php echo esc_html(Config::zipList()); ?>.<br>

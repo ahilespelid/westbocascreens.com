@@ -145,7 +145,7 @@ final class Blocks
         <div class="sc-testimonials">
             <?php foreach ($testimonials as $testimonial): ?>
                 <figure class="sc-testimonial">
-                    <div class="sc-review-stars" aria-label="Five out of five stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div>
+                    <?php echo self::stars(5); ?>
                     <blockquote><?php echo esc_html($testimonial['text']); ?></blockquote>
                     <figcaption>
                         <span class="sc-testimonial-name"><?php echo esc_html($testimonial['name']); ?></span>
@@ -155,6 +155,21 @@ final class Blocks
             <?php endforeach; ?>
         </div>
         <?php
+    }
+
+    /**
+     * Звёзды оценки. Для скринридера это одна картинка с текстом «4 out of 5 stars»:
+     * aria-label на div без роли не читается, поэтому роль img обязательна.
+     *
+     * @param int $rating Оценка от 1 до 5.
+     * @return string Готовый HTML блока со звёздами.
+     */
+    public static function stars(int $rating): string
+    {
+        // &#9733; — закрашенная звезда, &#9734; — контурная; сумма всегда пять.
+        $glyphs = str_repeat('&#9733;', $rating) . str_repeat('&#9734;', 5 - $rating);
+
+        return '<div class="sc-review-stars" role="img" aria-label="' . $rating . ' out of 5 stars">' . $glyphs . '</div>';
     }
 
     /**
@@ -183,10 +198,10 @@ final class Blocks
     private static function renderSelfHostedVideo(): void
     {
         ?>
-        <video id="sc-demo-video" muted loop playsinline preload="none" poster="<?php echo esc_url(Config::imageUrl(Config::HERO_IMAGE)); ?>">
-            <source data-src="<?php echo esc_url(Config::contentUrl('/uploads/site/hero-demo.webm')); ?>" type="video/webm">
-            <source data-src="<?php echo esc_url(Config::contentUrl('/uploads/site/hero-demo.mp4')); ?>" type="video/mp4">
-        </video>
+        <?php // Адреса файлов в data-атрибутах: <source> без src невалиден, а с src браузер начал бы качать сразу. ?>
+        <video id="sc-demo-video" muted loop playsinline preload="none" poster="<?php echo esc_url(Config::imageUrl(Config::HERO_IMAGE)); ?>"
+               data-webm="<?php echo esc_url(Config::contentUrl('/uploads/site/hero-demo.webm')); ?>"
+               data-mp4="<?php echo esc_url(Config::contentUrl('/uploads/site/hero-demo.mp4')); ?>"></video>
         <button type="button" class="sc-sound-toggle" aria-label="Toggle sound">&#128264;</button>
         <?php
     }
