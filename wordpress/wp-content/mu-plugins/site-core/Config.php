@@ -18,6 +18,9 @@ final class Config
     /** @var string Публичное имя компании. Для клиентов сайт — местная профильная фирма. */
     public const BRAND = 'West Boca Screens & Awnings';
 
+    /** @var string Слоган сайта: RSS, REST API и запасное описание для превью ссылок. */
+    public const TAGLINE = 'Motorized Screens & Retractable Awnings in West Boca Raton, FL';
+
     /** @var string Телефон в человекочитаемом виде — для текста на странице. */
     public const PHONE_DISPLAY = '(561) 555-0100';
 
