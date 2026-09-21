@@ -77,14 +77,14 @@ final class Config
     }
 
     /**
-     * URL картинки из wp-content с версией по времени изменения файла. Файл заменили
-     * под тем же именем — меняется и адрес, поэтому браузеры не показывают старое фото
-     * из кэша. Файла нет — пустая строка, и блок с картинкой просто не выводится.
+     * URL файла из wp-content (фото, видео) с версией по времени изменения. Файл заменили
+     * под тем же именем — меняется и адрес, поэтому браузеры не показывают старую версию
+     * из кэша. Файла нет — пустая строка, и блок с ним просто не выводится.
      *
      * @param string $relative_path Путь от корня wp-content, начиная со слэша.
      * @return string URL с параметром ?v= или пустая строка.
      */
-    public static function imageUrl(string $relative_path): string
+    public static function assetUrl(string $relative_path): string
     {
         // Полный путь на диске: WP_CONTENT_DIR задаёт ядро.
         $file_path = WP_CONTENT_DIR . $relative_path;

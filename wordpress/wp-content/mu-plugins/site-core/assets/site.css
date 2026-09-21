@@ -53,15 +53,8 @@ body{background:#f7f9fa;}
 /* ---------- Демо-видео на главной ---------- */
 .sc-video-section{max-width:1000px;margin:64px auto;padding:0 24px;text-align:center;}
 .sc-video-wrap{position:relative;border-radius:12px;overflow:hidden;box-shadow:0 10px 40px rgba(20,40,50,.18);margin-top:28px;background:#0b1a22;}
-/*
- * Ролик 1920×1080, но почти во все сцены по бокам вшиты чёрные полосы: в статике
- * до 97 px, в первую секунду сцены до 149 px (эффект наезда). Срезаем по 120 px
- * с каждой стороны: видимая картинка 1680×1080. Рамка получает эти пропорции,
- * видео растягивается на 1920/1680 её ширины и сдвигается влево на 120/1680 —
- * полосы уходят за края и обрезаются overflow:hidden у рамки.
- */
-.sc-video-wrap--cropped{aspect-ratio:1680/1080;}
-.sc-video-wrap--cropped video{width:calc(100% * 1920 / 1680);max-width:none;height:auto;margin-left:calc(-100% * 120 / 1680);display:block;aspect-ratio:16/9;}
+/* Боковые полосы вырезаны из самого ролика покадрово, поэтому плеер — обычные 16:9. */
+.sc-video-wrap video{width:100%;display:block;aspect-ratio:16/9;object-fit:cover;}
 /* Кнопка звука по центру снизу: на любой сцене видна, белая обводка отделяет её от тёмного кадра. */
 .sc-sound-toggle{position:absolute;left:50%;bottom:16px;transform:translateX(-50%);width:52px;height:52px;border-radius:50%;background:rgba(19,39,52,.8);color:#fff;border:2px solid rgba(255,255,255,.85);font-size:1.4rem;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 14px rgba(0,0,0,.35);-webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px);}
 .sc-sound-toggle:hover{background:rgba(19,39,52,.95);}
@@ -164,6 +157,13 @@ body{background:#f7f9fa;}
 
 /* ---------- Мобильные: заголовки не наезжают друг на друга и на номера шагов ---------- */
 @media (max-width:782px){
+    /* Шапка темы: название сжимается и переносит слова внутри своего блока, кнопка меню
+       остаётся справа в той же строке. Перенос flex не отключаем — раскрытое меню
+       (flex-basis:100%) по-прежнему уходит на свою строку под шапкой. */
+    .has-inline-mobile-toggle .inside-header{align-items:center;}
+    .has-inline-mobile-toggle .site-branding{flex:1 1 0;min-width:0;}
+    .has-inline-mobile-toggle .main-title{font-size:1.25rem;line-height:1.25;}
+    .has-inline-mobile-toggle .mobile-menu-control-wrapper{flex:0 0 auto;margin-left:12px;}
     .sc-hero{padding:72px 16px 96px;}
     .sc-hero h1,.sc-hero--compact h1{font-size:1.8rem;line-height:1.2;margin-bottom:14px;}
     .sc-hero p{font-size:1.05rem;line-height:1.5;margin-bottom:24px;}

@@ -119,7 +119,7 @@ final class Seo
         $url = $page_id ? get_permalink($page_id) : home_url('/');
 
         // Картинка превью одна на весь сайт: 1200×630 — размер, который ждут соцсети.
-        $image = Config::imageUrl(Config::OG_IMAGE) ?: Config::contentUrl(Config::OG_IMAGE);
+        $image = Config::assetUrl(Config::OG_IMAGE) ?: Config::contentUrl(Config::OG_IMAGE);
         ?>
         <meta property="og:type" content="website">
         <meta property="og:site_name" content="<?php echo esc_attr(Config::BRAND); ?>">

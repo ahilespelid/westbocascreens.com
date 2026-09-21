@@ -75,7 +75,7 @@ final class Schema
             'name'        => Config::BRAND,
             'description' => Config::TAGLINE,
             'url'         => home_url('/'),
-            'image'       => Config::imageUrl(Config::HERO_IMAGE) ?: Config::contentUrl(Config::HERO_IMAGE),
+            'image'       => Config::assetUrl(Config::HERO_IMAGE) ?: Config::contentUrl(Config::HERO_IMAGE),
             'telephone'   => Config::PHONE_TEL,
             'address'     => [
                 '@type'           => 'PostalAddress',
