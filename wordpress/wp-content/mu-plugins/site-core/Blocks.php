@@ -29,7 +29,7 @@ final class Blocks
         $hero_class = 'sc-hero' . ($is_compact ? ' sc-hero--compact' : '');
 
         // Фон передаётся CSS-переменной с версией файла: новое фото видно сразу, без ожидания кэша.
-        $hero_image = Config::imageUrl(Config::HERO_IMAGE);
+        $hero_image = Config::assetUrl(Config::HERO_IMAGE);
         ?>
         <div class="<?php echo esc_attr($hero_class); ?>"<?php if ($hero_image !== ''): ?> style="--sc-hero-image:url('<?php echo esc_url($hero_image); ?>')"<?php endif; ?>>
             <h1><?php echo esc_html($heading); ?></h1>
@@ -78,8 +78,7 @@ final class Blocks
         <div class="sc-video-section">
             <h2><?php echo esc_html($heading); ?></h2>
             <p class="sc-section-lede"><?php echo esc_html($lede); ?></p>
-            <?php // Модификатор обрезки полос нужен только собственному ролику: у YouTube честные 16:9. ?>
-            <div class="sc-video-wrap<?php echo Config::YOUTUBE_ID === '' ? ' sc-video-wrap--cropped' : ''; ?>">
+            <div class="sc-video-wrap">
                 <?php Config::YOUTUBE_ID === '' ? self::renderSelfHostedVideo() : self::renderYoutubeFacade(); ?>
             </div>
         </div>
@@ -99,7 +98,7 @@ final class Blocks
     public static function renderMediaSplit(string $image_path, string $image_alt, string $heading, string $text): void
     {
         // URL с версией или пустая строка, если фото ещё не загружено.
-        $image_url = Config::imageUrl($image_path);
+        $image_url = Config::assetUrl($image_path);
         ?>
         <div class="sc-media-split<?php echo $image_url === '' ? ' sc-media-split--text' : ''; ?>">
             <?php if ($image_url !== ''): ?>
@@ -199,9 +198,9 @@ final class Blocks
     {
         ?>
         <?php // Адреса файлов в data-атрибутах: <source> без src невалиден, а с src браузер начал бы качать сразу. ?>
-        <video id="sc-demo-video" muted loop playsinline preload="none" poster="<?php echo esc_url(Config::imageUrl(Config::HERO_IMAGE)); ?>"
-               data-webm="<?php echo esc_url(Config::contentUrl('/uploads/site/hero-demo.webm')); ?>"
-               data-mp4="<?php echo esc_url(Config::contentUrl('/uploads/site/hero-demo.mp4')); ?>"></video>
+        <video id="sc-demo-video" muted loop playsinline preload="none" poster="<?php echo esc_url(Config::assetUrl(Config::HERO_IMAGE)); ?>"
+               data-webm="<?php echo esc_url(Config::assetUrl('/uploads/site/hero-demo.webm')); ?>"
+               data-mp4="<?php echo esc_url(Config::assetUrl('/uploads/site/hero-demo.mp4')); ?>"></video>
         <button type="button" class="sc-sound-toggle" aria-label="Toggle sound">&#128264;</button>
         <?php
     }
