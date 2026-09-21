@@ -4,6 +4,7 @@
  */
 
 use ApexFlow\Blocks;
+use ApexFlow\Config;
 
 // Прямой вызов файла мимо WordPress запрещён.
 if (!defined('ABSPATH')) {
@@ -18,7 +19,7 @@ Blocks::renderHero(
 ?>
 
 <div class="afn-section-narrow">
-    <p>Wow Apex Flow partners with restaurants, golf clubs, hotels, and commercial property owners across Boca Raton to design and install large-scale motorized shade and retractable screen systems. From outdoor dining patios to clubhouse terraces, we engineer solutions that extend usable, revenue-generating space and keep guests comfortable through sun, wind, and rain.</p>
+    <p><?php echo esc_html(Config::BRAND); ?> partners with restaurants, golf clubs, hotels, and commercial property owners across Boca Raton to design and install large-scale motorized shade and retractable screen systems. From outdoor dining patios to clubhouse terraces, we engineer solutions that extend usable, revenue-generating space and keep guests comfortable through sun, wind, and rain.</p>
 
     <h2 class="afn-h2-left">Built for High-Traffic Commercial Use</h2>
     <p>Our commercial-grade aluminum framing and motorized drive systems are engineered for durability and daily use, meeting Florida's strict wind-load building codes. Every system includes smart wind sensors for automatic retraction during storms, protecting your investment without staff having to run outside mid-service.</p>

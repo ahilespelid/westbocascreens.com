@@ -7,7 +7,8 @@ WordPress-сайт https://westbocascreens.com. Стек в Docker Compose (пр
 ## Структура
 
 - `wordpress/`: вся файловая система WordPress (ядро, темы, плагины, mu-plugins, загрузки). Монтируется в контейнеры как `/var/www/html`. Не хранятся в git только `wp-config.php` (в нём соли) и кэш.
-- `wordpress/wp-content/mu-plugins/apexflow-core.php`: кастомная логика сайта (шорткоды, разметка Schema.org, отзывы, футер).
+- `wordpress/wp-content/mu-plugins/site-core.php` + `site-core/`: вся логика и разметка сайта. `Config.php` — бренд, телефон, ZIP-коды, фото, ID ролика YouTube и список преимуществ; `content/<slug>.php` — тексты страниц; `assets/` — CSS и JS.
+- Бренд для клиентов — только `Config::BRAND`. Имя управляющей компании в публичном HTML, CSS, JS и путях к файлам не появляется.
 - `docker-compose.yml`: стек. Тома `westbocascreens_db_data` (MySQL) и `westbocascreens_fastcgi_cache`, сеть `westbocascreens_internal`.
 - `nginx/conf.d/default.conf`: конфиг nginx и fastcgi-кэш.
 - `wp.sh`: обёртка над wp-cli, например `./wp.sh option get siteurl`.

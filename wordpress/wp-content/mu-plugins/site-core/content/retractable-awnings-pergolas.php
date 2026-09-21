@@ -4,6 +4,7 @@
  */
 
 use ApexFlow\Blocks;
+use ApexFlow\Config;
 
 // Прямой вызов файла мимо WordPress запрещён.
 if (!defined('ABSPATH')) {
@@ -15,10 +16,18 @@ Blocks::renderHero(
     'Retractable Awnings & Pergolas in West Boca Raton, FL',
     'Motorized shade for your patio, engineered for Florida sun and Florida storms.'
 );
+
+// Фото маркизы с пультом — тот же кадр, что и на главной; без файла выводится только текст.
+Blocks::renderMediaSplit(
+    Config::AWNING_IMAGE,
+    'Striped Sunbrella retractable awning extended over a patio, with the motorized remote control in hand',
+    'Sunbrella&reg; Awnings at the Touch of a Button',
+    'Custom striped or solid Sunbrella&reg; fabric, a powder-coated frame and a handheld remote: extend full shade over your outdoor living space in seconds, and let the wind sensor put it away when the weather turns.'
+);
 ?>
 
 <div class="afn-section-narrow">
-    <p>Extend your living space outdoors with a custom retractable awning or motorized pergola from Wow Apex Flow. Whether you want shade over a pool deck, dining patio, or entertainment area, our systems open and close with the push of a button — no manual cranking, no wrestling with a hand-crank in 95° heat.</p>
+    <p>Extend your living space outdoors with a custom retractable awning or motorized pergola from <?php echo esc_html(Config::BRAND); ?>. Whether you want shade over a pool deck, dining patio, or entertainment area, our systems open and close with the push of a button — no manual cranking, no wrestling with a hand-crank in 95° heat.</p>
 
     <h2 class="afn-h2-left">Motorized, Weather-Aware Shade</h2>
     <p>Every awning we install includes smart wind sensors that automatically retract the fabric when storm-force winds hit, protecting the system from damage — the single biggest worry we hear from Florida homeowners, solved before you even notice the wind picked up. Pair that with Alexa and Google Home integration for full one-touch control.</p>
@@ -31,6 +40,9 @@ Blocks::renderHero(
     [afn_trust title="Alexa &amp; Google Home"]Voice-controlled operation for total convenience.[/afn_trust]
     [afn_trust title="Licensed &amp; Insured"]Full Florida state licensing and liability insurance on every install.[/afn_trust]
     [/afn_trust_grid]
+
+    <h2 class="afn-h2-left">Best in the Industry</h2>
+    <?php Blocks::renderFeatureGrid(Config::PREMIUM_FEATURES); ?>
 </div>
 
 <?php

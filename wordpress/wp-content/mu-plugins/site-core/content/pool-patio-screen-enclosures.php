@@ -4,6 +4,7 @@
  */
 
 use ApexFlow\Blocks;
+use ApexFlow\Config;
 
 // Прямой вызов файла мимо WordPress запрещён.
 if (!defined('ABSPATH')) {
@@ -18,7 +19,7 @@ Blocks::renderHero(
 ?>
 
 <div class="afn-section-narrow">
-    <p>Wow Apex Flow designs and builds custom pool cage and patio screen enclosures from the ground up. We specialize in full new-construction aluminum framing — not small rescreening jobs — giving your outdoor space a complete, durable, insect-free upgrade that actually adds value to your home.</p>
+    <p><?php echo esc_html(Config::BRAND); ?> designs and builds custom pool cage and patio screen enclosures from the ground up. We specialize in full new-construction aluminum framing — not small rescreening jobs — giving your outdoor space a complete, durable, insect-free upgrade that actually adds value to your home.</p>
 
     <h2 class="afn-h2-left">Engineered for Florida Code</h2>
     <p>Every enclosure is engineered to meet Florida's strict building and wind-load codes, using premium aluminum framing rated for hurricane conditions. Your pool cage or patio enclosure is built to protect your family and your investment for decades, not just a few seasons.</p>

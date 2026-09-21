@@ -14,10 +14,10 @@ if (!defined('ABSPATH')) {
 final class Assets
 {
     /** @var string Хэндл основной таблицы стилей — им же пользуется WordPress при дедупликации. */
-    private const STYLE_HANDLE = 'apexflow-site';
+    private const STYLE_HANDLE = 'site-styles';
 
     /** @var string Хэндл скрипта ленивой загрузки видео на главной. */
-    private const VIDEO_HANDLE = 'apexflow-video';
+    private const VIDEO_HANDLE = 'site-video';
 
     /**
      * Подписка на хуки модуля.
@@ -58,7 +58,7 @@ final class Assets
     private static function url(string $file_name): string
     {
         // WPMU_PLUGIN_URL задаётся ядром и учитывает нестандартное расположение wp-content.
-        return WPMU_PLUGIN_URL . '/apexflow/assets/' . $file_name;
+        return WPMU_PLUGIN_URL . '/site-core/assets/' . $file_name;
     }
 
     /**

@@ -75,3 +75,35 @@
         }
     }, { once: true });
 })();
+
+/*
+ * Заглушка ролика YouTube: до клика на странице только картинка и кнопка.
+ * Плеер с домена youtube-nocookie.com подставляется по клику — так сторонний
+ * код не грузится заранее и не ставит куки тем, кто видео не смотрит.
+ */
+(function () {
+    // Заглушек может быть несколько — обрабатываем каждую.
+    document.querySelectorAll('.afn-youtube[data-video-id]').forEach(function (facade) {
+        // Один обработчик на заглушку; once — второй клик уже приходится на сам плеер.
+        facade.addEventListener('click', function () {
+            // Идентификатор ролика из разметки; encodeURIComponent — защита от кривых значений.
+            var video_id = encodeURIComponent(facade.getAttribute('data-video-id'));
+
+            // Плеер создаём элементом, а не строкой HTML: никакой разметки из атрибутов.
+            var iframe = document.createElement('iframe');
+
+            // autoplay — пользователь уже нажал «играть»; rel=0 — похожие ролики только с этого канала.
+            iframe.src = 'https://www.youtube-nocookie.com/embed/' + video_id + '?autoplay=1&rel=0';
+
+            // Разрешения, без которых автозапуск и полноэкранный режим не работают.
+            iframe.allow = 'accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture';
+            iframe.allowFullscreen = true;
+
+            // Заголовок фрейма для скринридеров.
+            iframe.title = 'Product video';
+
+            // Заменяем картинку и кнопку плеером целиком.
+            facade.replaceChildren(iframe);
+        }, { once: true });
+    });
+})();
