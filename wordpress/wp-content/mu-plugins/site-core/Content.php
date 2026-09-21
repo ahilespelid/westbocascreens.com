@@ -38,21 +38,42 @@ final class Content
      */
     public static function filterContent(string $database_content): string
     {
-        // Подмена нужна только для самой страницы в основном запросе: в списках и
-        // виджетах the_content вызывается для чужих записей, туда лезть нельзя.
-        if (!is_singular('page') || !in_the_loop() || !is_main_query()) {
+        // Подмена нужна только для страниц: записи, отзывы и прочие типы не трогаем.
+        if (get_post_type() !== 'page') {
             return $database_content;
         }
 
+        // Сама страница в основном цикле — или REST API: он строит content.rendered вне
+        // цикла, и без этого условия отдавал бы наружу устаревший текст из базы.
+        $is_page_view = is_singular('page') && in_the_loop() && is_main_query();
+        $is_rest_request = defined('REST_REQUEST') && REST_REQUEST;
+
+        // В списках и виджетах the_content вызывается для чужих записей — туда не лезем.
+        if (!$is_page_view && !$is_rest_request) {
+            return $database_content;
+        }
+
+        // Разметка из файла; файла нет — остаётся содержимое базы, как раньше.
+        return self::render((string) get_post_field('post_name', get_the_ID())) ?? $database_content;
+    }
+
+    /**
+     * Разметка страницы из её файла, до раскрытия шорткодов.
+     *
+     * @param string $slug Слаг страницы.
+     * @return string|null Разметка или null, если файла для этого слага нет.
+     */
+    public static function render(string $slug): ?string
+    {
         // Путь к файлу страницы; null означает «файла нет» или «слаг подозрительный».
-        $template_path = self::templatePath(get_post_field('post_name', get_the_ID()));
+        $template_path = self::templatePath($slug);
 
-        // Файла нет — возвращаем содержимое базы, поведение остаётся прежним.
+        // Нечего рендерить — вызывающий код сам решает, чем это заменить.
         if ($template_path === null) {
-            return $database_content;
+            return null;
         }
 
-        // Буферизация: файл печатает разметку, а фильтру её нужно вернуть строкой.
+        // Буферизация: файл печатает разметку, а вернуть её нужно строкой.
         ob_start();
 
         // include, а не file_get_contents: внутри файла доступны PHP, Config и хелперы.
@@ -62,16 +83,24 @@ final class Content
     }
 
     /**
+     * Слаги всех страниц, у которых есть файл разметки.
+     *
+     * @return string[] Например: ['home', 'reviews', …].
+     */
+    public static function slugs(): array
+    {
+        // Имя файла без расширения и есть слаг страницы.
+        return array_map(static fn (string $file_path): string => basename($file_path, '.php'), glob(self::DIR . '/*.php') ?: []);
+    }
+
+    /**
      * Полный путь к файлу страницы по её слагу.
      *
-     * @param mixed $raw_slug Слаг страницы, как его вернул WordPress.
+     * @param string $slug Слаг страницы.
      * @return string|null Путь к существующему файлу или null.
      */
-    private static function templatePath(mixed $raw_slug): ?string
+    private static function templatePath(string $slug): ?string
     {
-        // Приведение к строке: get_post_field может вернуть false для несуществующей записи.
-        $slug = (string) $raw_slug;
-
         // Разрешены только латиница, цифры и дефис — это отсекает любой обход каталогов.
         if (!preg_match('/^[a-z0-9-]+$/', $slug)) {
             return null;
