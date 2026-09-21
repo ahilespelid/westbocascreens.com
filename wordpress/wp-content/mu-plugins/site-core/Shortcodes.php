@@ -4,7 +4,7 @@
  * Каждый парный шорткод — просто контейнер вокруг вложенных, поэтому обёртки собраны одним методом.
  */
 
-namespace ApexFlow;
+namespace SiteCore;
 
 // Прямой вызов файла мимо WordPress запрещён.
 if (!defined('ABSPATH')) {
@@ -24,19 +24,19 @@ final class Shortcodes
     public static function register(): void
     {
         // Одиночный вопрос-ответ.
-        add_shortcode('afn_faq', [self::class, 'renderFaqItem']);
+        add_shortcode('sc_faq', [self::class, 'renderFaqItem']);
 
         // Один шаг инструкции «как это работает».
-        add_shortcode('afn_step', [self::class, 'renderStep']);
+        add_shortcode('sc_step', [self::class, 'renderStep']);
 
-        // Сетка шагов вокруг вложенных afn_step.
-        add_shortcode('afn_steps', self::wrapper('afn-steps'));
+        // Сетка шагов вокруг вложенных sc_step.
+        add_shortcode('sc_steps', self::wrapper('sc-steps'));
 
         // Карточка доверия: лицензия, страховка, гарантия.
-        add_shortcode('afn_trust', [self::class, 'renderTrustCard']);
+        add_shortcode('sc_trust', [self::class, 'renderTrustCard']);
 
-        // Сетка карточек доверия вокруг вложенных afn_trust.
-        add_shortcode('afn_trust_grid', self::wrapper('afn-trust-grid'));
+        // Сетка карточек доверия вокруг вложенных sc_trust.
+        add_shortcode('sc_trust_grid', self::wrapper('sc-trust-grid'));
 
         // Схема FAQPage печатается в подвале — к этому моменту все вопросы уже собраны.
         add_action('wp_footer', [self::class, 'renderFaqSchema'], 20);
@@ -51,7 +51,7 @@ final class Shortcodes
     public static function renderFaqItem(array|string $raw_atts): string
     {
         // shortcode_atts задаёт значения по умолчанию и отсекает посторонние атрибуты.
-        $atts = shortcode_atts(['q' => '', 'a' => ''], $raw_atts, 'afn_faq');
+        $atts = shortcode_atts(['q' => '', 'a' => ''], $raw_atts, 'sc_faq');
 
         // В схему попадают только полные пары: вопрос без ответа Google считает ошибкой разметки.
         if ($atts['q'] !== '' && $atts['a'] !== '') {
@@ -61,9 +61,9 @@ final class Shortcodes
         // Буферизация — единственный способ вернуть разметку из шорткода, не печатая её сразу.
         ob_start();
         ?>
-        <div class="afn-faq-item">
-            <h3 class="afn-faq-q"><?php echo esc_html($atts['q']); ?></h3>
-            <div class="afn-faq-a"><?php echo wp_kses_post($atts['a']); ?></div>
+        <div class="sc-faq-item">
+            <h3 class="sc-faq-q"><?php echo esc_html($atts['q']); ?></h3>
+            <div class="sc-faq-a"><?php echo wp_kses_post($atts['a']); ?></div>
         </div>
         <?php
         return (string) ob_get_clean();
@@ -79,12 +79,12 @@ final class Shortcodes
     public static function renderStep(array|string $raw_atts, ?string $content = ''): string
     {
         // Номер и заголовок приходят атрибутами, текст — телом шорткода.
-        $atts = shortcode_atts(['num' => '', 'title' => ''], $raw_atts, 'afn_step');
+        $atts = shortcode_atts(['num' => '', 'title' => ''], $raw_atts, 'sc_step');
 
         ob_start();
         ?>
-        <div class="afn-step">
-            <div class="afn-step-num"><?php echo esc_html($atts['num']); ?></div>
+        <div class="sc-step">
+            <div class="sc-step-num"><?php echo esc_html($atts['num']); ?></div>
             <h3><?php echo esc_html($atts['title']); ?></h3>
             <p><?php echo wp_kses_post((string) $content); ?></p>
         </div>
@@ -102,11 +102,11 @@ final class Shortcodes
     public static function renderTrustCard(array|string $raw_atts, ?string $content = ''): string
     {
         // У карточки единственный атрибут — заголовок.
-        $atts = shortcode_atts(['title' => ''], $raw_atts, 'afn_trust');
+        $atts = shortcode_atts(['title' => ''], $raw_atts, 'sc_trust');
 
         ob_start();
         ?>
-        <div class="afn-trust-card">
+        <div class="sc-trust-card">
             <h3><?php echo esc_html($atts['title']); ?></h3>
             <div><?php echo wp_kses_post((string) $content); ?></div>
         </div>

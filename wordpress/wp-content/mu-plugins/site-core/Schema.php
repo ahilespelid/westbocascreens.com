@@ -4,7 +4,7 @@
  * и средняя оценка на странице отзывов. Всё печатается одним общим методом.
  */
 
-namespace ApexFlow;
+namespace SiteCore;
 
 // Прямой вызов файла мимо WordPress запрещён.
 if (!defined('ABSPATH')) {
@@ -17,10 +17,10 @@ final class Schema
     private const BUSINESS_TYPE = 'HomeAndConstructionBusiness';
 
     /** @var string Мета-поле с названием услуги, которой посвящена страница. */
-    private const META_SERVICE = '_afn_service_name';
+    private const META_SERVICE = '_sc_service_name';
 
     /** @var string Мета-поле с описанием страницы — переиспользуется в описании услуги. */
-    private const META_DESCRIPTION = '_afn_meta_description';
+    private const META_DESCRIPTION = '_sc_meta_description';
 
     /**
      * Подписка на хуки модуля. Приоритеты сохраняют прежний порядок блоков в <head>.
