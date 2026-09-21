@@ -7,7 +7,7 @@
  * в диффе, её можно откатить коммитом и она не зависит от состояния базы.
  */
 
-namespace ApexFlow;
+namespace SiteCore;
 
 // Прямой вызов файла мимо WordPress запрещён.
 if (!defined('ABSPATH')) {

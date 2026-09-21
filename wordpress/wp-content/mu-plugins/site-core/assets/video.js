@@ -5,13 +5,13 @@
  */
 (function () {
     // Видео на странице одно; нет его — скрипт молча завершается.
-    var video = document.getElementById('afn-demo-video');
+    var video = document.getElementById('sc-demo-video');
     if (!video) {
         return;
     }
 
     // Кнопка включения и выключения звука поверх видео.
-    var toggle = document.querySelector('.afn-sound-toggle');
+    var toggle = document.querySelector('.sc-sound-toggle');
 
     // Флаг, чтобы источники подставлялись ровно один раз.
     var loaded = false;
@@ -83,7 +83,7 @@
  */
 (function () {
     // Заглушек может быть несколько — обрабатываем каждую.
-    document.querySelectorAll('.afn-youtube[data-video-id]').forEach(function (facade) {
+    document.querySelectorAll('.sc-youtube[data-video-id]').forEach(function (facade) {
         // Один обработчик на заглушку; once — второй клик уже приходится на сам плеер.
         facade.addEventListener('click', function () {
             // Идентификатор ролика из разметки; encodeURIComponent — защита от кривых значений.

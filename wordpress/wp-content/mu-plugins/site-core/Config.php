@@ -6,7 +6,7 @@
  * и разметкой Schema.org не бывает.
  */
 
-namespace ApexFlow;
+namespace SiteCore;
 
 // Прямой вызов файла мимо WordPress запрещён.
 if (!defined('ABSPATH')) {

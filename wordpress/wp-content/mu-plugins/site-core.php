@@ -15,6 +15,7 @@ const SITE_CORE_DIR = __DIR__ . '/site-core';
 
 // Порядок загрузки значения не имеет: каждый модуль только вешает свои хуки.
 require_once SITE_CORE_DIR . '/Config.php';
+require_once SITE_CORE_DIR . '/Migration.php';
 require_once SITE_CORE_DIR . '/Assets.php';
 require_once SITE_CORE_DIR . '/Blocks.php';
 require_once SITE_CORE_DIR . '/Layout.php';
@@ -26,11 +27,12 @@ require_once SITE_CORE_DIR . '/Content.php';
 require_once SITE_CORE_DIR . '/Sitemap.php';
 
 // Единая точка включения: каждый модуль сам решает, на какие хуки подписаться.
-ApexFlow\Assets::register();
-ApexFlow\Layout::register();
-ApexFlow\Seo::register();
-ApexFlow\Schema::register();
-ApexFlow\Shortcodes::register();
-ApexFlow\Reviews::register();
-ApexFlow\Content::register();
-ApexFlow\Sitemap::register();
+SiteCore\Migration::register();
+SiteCore\Assets::register();
+SiteCore\Layout::register();
+SiteCore\Seo::register();
+SiteCore\Schema::register();
+SiteCore\Shortcodes::register();
+SiteCore\Reviews::register();
+SiteCore\Content::register();
+SiteCore\Sitemap::register();

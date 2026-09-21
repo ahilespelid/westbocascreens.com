@@ -8,7 +8,7 @@
  * запасным вариантом для страниц, которых здесь нет.
  */
 
-namespace ApexFlow;
+namespace SiteCore;
 
 // Прямой вызов файла мимо WordPress запрещён.
 if (!defined('ABSPATH')) {
@@ -18,10 +18,10 @@ if (!defined('ABSPATH')) {
 final class Seo
 {
     /** @var string Мета-поле базы с собственным заголовком страницы. */
-    private const META_TITLE = '_afn_meta_title';
+    private const META_TITLE = '_sc_meta_title';
 
     /** @var string Мета-поле базы с описанием страницы. */
-    private const META_DESCRIPTION = '_afn_meta_description';
+    private const META_DESCRIPTION = '_sc_meta_description';
 
     /**
      * @var array<string, array{title: string, description: string}> Мета по слагу страницы.

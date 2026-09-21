@@ -4,8 +4,8 @@
  * Шорткоды в разметке раскрываются ядром после этого фильтра, как и раньше.
  */
 
-use ApexFlow\Blocks;
-use ApexFlow\Config;
+use SiteCore\Blocks;
+use SiteCore\Config;
 
 // Прямой вызов файла мимо WordPress запрещён.
 if (!defined('ABSPATH')) {
@@ -42,38 +42,38 @@ Blocks::renderVideo(
 );
 ?>
 
-<div class="afn-section">
+<div class="sc-section">
     <h2>How It Works</h2>
-    <p class="afn-section-lede">From first call to finished install, we make it effortless.</p>
-    [afn_steps]
-    [afn_step num="1" title="Call or Request a Quote"]Reach a real person, not a call center. Tell us about your space and we'll schedule your free in-home visit.[/afn_step]
-    [afn_step num="2" title="Custom Design Consultation &amp; Free Estimate"]A design specialist comes to your home with product catalogs and physical Sunbrella&reg; fabric samples, measures every opening, and gives you an exact written price.[/afn_step]
-    [afn_step num="3" title="Professional Installation"]Made in the USA and installed by factory-trained technicians. Factory warranty, an apples-to-apples price guarantee, and no sales pressure. Your custom order will be installed by our service professionals.[/afn_step]
-    [/afn_steps]
+    <p class="sc-section-lede">From first call to finished install, we make it effortless.</p>
+    [sc_steps]
+    [sc_step num="1" title="Call or Request a Quote"]Reach a real person, not a call center. Tell us about your space and we'll schedule your free in-home visit.[/sc_step]
+    [sc_step num="2" title="Custom Design Consultation &amp; Free Estimate"]A design specialist comes to your home with product catalogs and physical Sunbrella&reg; fabric samples, measures every opening, and gives you an exact written price.[/sc_step]
+    [sc_step num="3" title="Professional Installation"]Made in the USA and installed by factory-trained technicians. Factory warranty, an apples-to-apples price guarantee, and no sales pressure. Your custom order will be installed by our service professionals.[/sc_step]
+    [/sc_steps]
 </div>
 
-<div class="afn-section">
+<div class="sc-section">
     <h2>Best in the Industry</h2>
-    <p class="afn-section-lede">Premium features that come standard on every system we build.</p>
+    <p class="sc-section-lede">Premium features that come standard on every system we build.</p>
     <?php Blocks::renderFeatureGrid(Config::PREMIUM_FEATURES); ?>
 </div>
 
-<div class="afn-section">
+<div class="sc-section">
     <h2>Why West Boca Raton Homeowners Choose <?php echo esc_html(Config::BRAND); ?></h2>
-    <p class="afn-section-lede">Because "good enough" doesn't survive hurricane season.</p>
-    [afn_trust_grid]
-    [afn_trust title="All-Weather &amp; Rain Protection"]Motorized panels create a sealed barrier that blocks up to 90% of driving rain and wind during tropical storms, keeping your furniture, TVs, and outdoor living space dry and mold-free.[/afn_trust]
-    [afn_trust title="Smart Home &amp; Alexa Integration"]One touch from your remote, phone, or voice — "Alexa, close the screens" — and your outdoor room seals itself up.[/afn_trust]
-    [afn_trust title="Smart Wind Sensors"]Built-in sensors auto-retract your awning the moment storm-force winds hit. The #1 worry for Florida homeowners, handled while you're not even home.[/afn_trust]
-    [afn_trust title="UV Ray &amp; Insect Barrier"]Real shade from Florida's brutal sun, and a mosquito- and no-see-um-free zone your family will actually want to spend evenings in.[/afn_trust]
-    [afn_trust title="Hurricane-Resistant Engineering"]Heavy-duty aluminum frames engineered to meet Florida's strict hurricane building codes — built to outlast the storm, not just survive it.[/afn_trust]
-    [afn_trust title="Licensed &amp; Fully Insured"]Fully licensed by the State of Florida and fully insured, so every install is backed by real accountability, not just a handshake.[/afn_trust]
-    [/afn_trust_grid]
+    <p class="sc-section-lede">Because "good enough" doesn't survive hurricane season.</p>
+    [sc_trust_grid]
+    [sc_trust title="All-Weather &amp; Rain Protection"]Motorized panels create a sealed barrier that blocks up to 90% of driving rain and wind during tropical storms, keeping your furniture, TVs, and outdoor living space dry and mold-free.[/sc_trust]
+    [sc_trust title="Smart Home &amp; Alexa Integration"]One touch from your remote, phone, or voice — "Alexa, close the screens" — and your outdoor room seals itself up.[/sc_trust]
+    [sc_trust title="Smart Wind Sensors"]Built-in sensors auto-retract your awning the moment storm-force winds hit. The #1 worry for Florida homeowners, handled while you're not even home.[/sc_trust]
+    [sc_trust title="UV Ray &amp; Insect Barrier"]Real shade from Florida's brutal sun, and a mosquito- and no-see-um-free zone your family will actually want to spend evenings in.[/sc_trust]
+    [sc_trust title="Hurricane-Resistant Engineering"]Heavy-duty aluminum frames engineered to meet Florida's strict hurricane building codes — built to outlast the storm, not just survive it.[/sc_trust]
+    [sc_trust title="Licensed &amp; Fully Insured"]Fully licensed by the State of Florida and fully insured, so every install is backed by real accountability, not just a handshake.[/sc_trust]
+    [/sc_trust_grid]
 </div>
 
-<div class="afn-section">
+<div class="sc-section">
     <h2>Our Services</h2>
-    <ul class="afn-services-list">
+    <ul class="sc-services-list">
         <li><a href="/motorized-retractable-screens/">Motorized Retractable Screens →</a></li>
         <li><a href="/retractable-awnings-pergolas/">Retractable Awnings &amp; Pergolas →</a></li>
         <li><a href="/pool-patio-screen-enclosures/">Pool &amp; Patio Screen Enclosures →</a></li>
@@ -81,21 +81,21 @@ Blocks::renderVideo(
     </ul>
 </div>
 
-<div class="afn-section">
+<div class="sc-section">
     <h2>What Your Neighbors Say</h2>
-    <p class="afn-section-lede">Homeowners across West Boca's gated and country club communities.</p>
+    <p class="sc-section-lede">Homeowners across West Boca's gated and country club communities.</p>
     <?php Blocks::renderTestimonials($testimonials); ?>
 </div>
 
-<div id="faq" class="afn-section-narrow">
-    <h2 class="afn-h2-left">Frequently Asked Questions</h2>
-    [afn_faq q="Who installs my system?" a="Your custom order will be installed by our service professionals: factory-trained technicians who walk you through your new controls before they leave."]
-    [afn_faq q="Will my design be approved by my HOA?" a="Our profiles and color palette are specified to meet HOA architectural review in West Boca's gated and country club communities, and we prepare the approval package for you."]
-    [afn_faq q="Are your systems built for Florida hurricanes?" a="Yes. Our aluminum frames are engineered to meet Florida's strict wind-load building codes, and every system includes smart wind sensors that auto-retract in high winds."]
-    [afn_faq q="Do you offer financing?" a="Yes, we offer flexible financing options for qualified homeowners. Ask your design specialist about current plans."]
-    [afn_faq q="What areas do you serve?" a="We proudly serve West Boca Raton and surrounding communities, including ZIP codes <?php echo esc_html(Config::zipList()); ?>."]
-    [afn_faq q="Are you licensed and insured?" a="Yes, <?php echo esc_html(Config::BRAND); ?> is fully licensed by the State of Florida and carries complete liability insurance."]
-    [afn_faq q="Can I control my screens with Alexa or Google Home?" a="Yes. All our motorized systems support smart-home integration, including Alexa and Google Home voice control."]
+<div id="faq" class="sc-section-narrow">
+    <h2 class="sc-h2-left">Frequently Asked Questions</h2>
+    [sc_faq q="Who installs my system?" a="Your custom order will be installed by our service professionals: factory-trained technicians who walk you through your new controls before they leave."]
+    [sc_faq q="Will my design be approved by my HOA?" a="Our profiles and color palette are specified to meet HOA architectural review in West Boca's gated and country club communities, and we prepare the approval package for you."]
+    [sc_faq q="Are your systems built for Florida hurricanes?" a="Yes. Our aluminum frames are engineered to meet Florida's strict wind-load building codes, and every system includes smart wind sensors that auto-retract in high winds."]
+    [sc_faq q="Do you offer financing?" a="Yes, we offer flexible financing options for qualified homeowners. Ask your design specialist about current plans."]
+    [sc_faq q="What areas do you serve?" a="We proudly serve West Boca Raton and surrounding communities, including ZIP codes <?php echo esc_html(Config::zipList()); ?>."]
+    [sc_faq q="Are you licensed and insured?" a="Yes, <?php echo esc_html(Config::BRAND); ?> is fully licensed by the State of Florida and carries complete liability insurance."]
+    [sc_faq q="Can I control my screens with Alexa or Google Home?" a="Yes. All our motorized systems support smart-home integration, including Alexa and Google Home voice control."]
 </div>
 
 <?php

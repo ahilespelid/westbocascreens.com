@@ -5,7 +5,7 @@
  * сетка преимуществ, отзывы соседей и врезка о коммерческих объектах.
  */
 
-namespace ApexFlow;
+namespace SiteCore;
 
 // Прямой вызов файла мимо WordPress запрещён.
 if (!defined('ABSPATH')) {
@@ -26,16 +26,16 @@ final class Blocks
     public static function renderHero(string $heading, string $subheading, bool $is_compact = true, string $cta_label = ''): void
     {
         // Модификатор класса вместо инлайн-стилей: внешний вид задаётся в site.css.
-        $hero_class = 'afn-hero' . ($is_compact ? ' afn-hero--compact' : '');
+        $hero_class = 'sc-hero' . ($is_compact ? ' sc-hero--compact' : '');
 
         // Фон передаётся CSS-переменной с версией файла: новое фото видно сразу, без ожидания кэша.
         $hero_image = Config::imageUrl(Config::HERO_IMAGE);
         ?>
-        <div class="<?php echo esc_attr($hero_class); ?>"<?php if ($hero_image !== ''): ?> style="--afn-hero-image:url('<?php echo esc_url($hero_image); ?>')"<?php endif; ?>>
+        <div class="<?php echo esc_attr($hero_class); ?>"<?php if ($hero_image !== ''): ?> style="--sc-hero-image:url('<?php echo esc_url($hero_image); ?>')"<?php endif; ?>>
             <h1><?php echo esc_html($heading); ?></h1>
             <p><?php echo esc_html($subheading); ?></p>
             <?php if ($cta_label !== ''): ?>
-                <a href="#quote" class="afn-header-cta afn-hero-cta"><?php echo esc_html($cta_label); ?></a>
+                <a href="#quote" class="sc-header-cta sc-hero-cta"><?php echo esc_html($cta_label); ?></a>
             <?php endif; ?>
         </div>
         <?php
@@ -52,12 +52,12 @@ final class Blocks
     public static function renderCtaBand(string $heading, string $lede = ''): void
     {
         ?>
-        <div id="quote" class="afn-cta-band">
+        <div id="quote" class="sc-cta-band">
             <h2><?php echo esc_html($heading); ?></h2>
             <?php if ($lede !== ''): ?>
                 <p><?php echo esc_html($lede); ?></p>
             <?php endif; ?>
-            <a href="tel:<?php echo esc_attr(Config::PHONE_TEL); ?>" class="afn-call-btn">Call <?php echo esc_html(Config::PHONE_DISPLAY); ?></a>
+            <a href="tel:<?php echo esc_attr(Config::PHONE_TEL); ?>" class="sc-call-btn">Call <?php echo esc_html(Config::PHONE_DISPLAY); ?></a>
         </div>
         <?php
     }
@@ -75,10 +75,11 @@ final class Blocks
     public static function renderVideo(string $heading, string $lede): void
     {
         ?>
-        <div class="afn-video-section">
+        <div class="sc-video-section">
             <h2><?php echo esc_html($heading); ?></h2>
-            <p class="afn-section-lede"><?php echo esc_html($lede); ?></p>
-            <div class="afn-video-wrap">
+            <p class="sc-section-lede"><?php echo esc_html($lede); ?></p>
+            <?php // Модификатор обрезки полос нужен только собственному ролику: у YouTube честные 16:9. ?>
+            <div class="sc-video-wrap<?php echo Config::YOUTUBE_ID === '' ? ' sc-video-wrap--cropped' : ''; ?>">
                 <?php Config::YOUTUBE_ID === '' ? self::renderSelfHostedVideo() : self::renderYoutubeFacade(); ?>
             </div>
         </div>
@@ -100,11 +101,11 @@ final class Blocks
         // URL с версией или пустая строка, если фото ещё не загружено.
         $image_url = Config::imageUrl($image_path);
         ?>
-        <div class="afn-media-split<?php echo $image_url === '' ? ' afn-media-split--text' : ''; ?>">
+        <div class="sc-media-split<?php echo $image_url === '' ? ' sc-media-split--text' : ''; ?>">
             <?php if ($image_url !== ''): ?>
-                <img class="afn-media-split-image" src="<?php echo esc_url($image_url); ?>" alt="<?php echo esc_attr($image_alt); ?>" loading="lazy" width="1200" height="800">
+                <img class="sc-media-split-image" src="<?php echo esc_url($image_url); ?>" alt="<?php echo esc_attr($image_alt); ?>" loading="lazy" width="1200" height="800">
             <?php endif; ?>
-            <div class="afn-media-split-body">
+            <div class="sc-media-split-body">
                 <h2><?php echo esc_html($heading); ?></h2>
                 <p><?php echo wp_kses_post($text); ?></p>
             </div>
@@ -121,9 +122,9 @@ final class Blocks
     public static function renderFeatureGrid(array $features): void
     {
         ?>
-        <div class="afn-trust-grid">
+        <div class="sc-trust-grid">
             <?php foreach ($features as $feature): ?>
-                <div class="afn-trust-card">
+                <div class="sc-trust-card">
                     <h3><?php echo wp_kses_post($feature['title']); ?></h3>
                     <p><?php echo wp_kses_post($feature['text']); ?></p>
                 </div>
@@ -141,14 +142,14 @@ final class Blocks
     public static function renderTestimonials(array $testimonials): void
     {
         ?>
-        <div class="afn-testimonials">
+        <div class="sc-testimonials">
             <?php foreach ($testimonials as $testimonial): ?>
-                <figure class="afn-testimonial">
-                    <div class="afn-review-stars" aria-label="Five out of five stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div>
+                <figure class="sc-testimonial">
+                    <div class="sc-review-stars" aria-label="Five out of five stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div>
                     <blockquote><?php echo esc_html($testimonial['text']); ?></blockquote>
                     <figcaption>
-                        <span class="afn-testimonial-name"><?php echo esc_html($testimonial['name']); ?></span>
-                        <span class="afn-testimonial-place"><?php echo esc_html($testimonial['place']); ?></span>
+                        <span class="sc-testimonial-name"><?php echo esc_html($testimonial['name']); ?></span>
+                        <span class="sc-testimonial-place"><?php echo esc_html($testimonial['place']); ?></span>
                     </figcaption>
                 </figure>
             <?php endforeach; ?>
@@ -164,11 +165,11 @@ final class Blocks
     public static function renderCommercialTeaser(): void
     {
         ?>
-        <div class="afn-commercial">
-            <div class="afn-commercial-inner">
+        <div class="sc-commercial">
+            <div class="sc-commercial-inner">
                 <h2>Commercial Shading Solutions</h2>
                 <p>We custom design and install heavy-duty motorized screens and awnings for West Boca restaurants, country clubs, and commercial outdoor dining spaces.</p>
-                <a href="/commercial-custom-shade-solutions/" class="afn-commercial-link">See commercial projects &rarr;</a>
+                <a href="/commercial-custom-shade-solutions/" class="sc-commercial-link">See commercial projects &rarr;</a>
             </div>
         </div>
         <?php
@@ -182,11 +183,11 @@ final class Blocks
     private static function renderSelfHostedVideo(): void
     {
         ?>
-        <video id="afn-demo-video" muted loop playsinline preload="none" poster="<?php echo esc_url(Config::imageUrl(Config::HERO_IMAGE)); ?>">
+        <video id="sc-demo-video" muted loop playsinline preload="none" poster="<?php echo esc_url(Config::imageUrl(Config::HERO_IMAGE)); ?>">
             <source data-src="<?php echo esc_url(Config::contentUrl('/uploads/site/hero-demo.webm')); ?>" type="video/webm">
             <source data-src="<?php echo esc_url(Config::contentUrl('/uploads/site/hero-demo.mp4')); ?>" type="video/mp4">
         </video>
-        <button type="button" class="afn-sound-toggle" aria-label="Toggle sound">&#128264;</button>
+        <button type="button" class="sc-sound-toggle" aria-label="Toggle sound">&#128264;</button>
         <?php
     }
 
@@ -202,9 +203,9 @@ final class Blocks
         // Превью с серверов YouTube: hqdefault есть у любого ролика, в отличие от maxresdefault.
         $poster_url = 'https://i.ytimg.com/vi/' . Config::YOUTUBE_ID . '/hqdefault.jpg';
         ?>
-        <div class="afn-youtube" data-video-id="<?php echo esc_attr(Config::YOUTUBE_ID); ?>">
-            <img class="afn-youtube-poster" src="<?php echo esc_url($poster_url); ?>" alt="Motorized retractable awning in action" loading="lazy" width="480" height="360">
-            <button type="button" class="afn-youtube-play" aria-label="Play video">&#9654;</button>
+        <div class="sc-youtube" data-video-id="<?php echo esc_attr(Config::YOUTUBE_ID); ?>">
+            <img class="sc-youtube-poster" src="<?php echo esc_url($poster_url); ?>" alt="Motorized retractable awning in action" loading="lazy" width="480" height="360">
+            <button type="button" class="sc-youtube-play" aria-label="Play video">&#9654;</button>
         </div>
         <?php
     }

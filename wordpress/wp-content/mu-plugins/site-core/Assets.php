@@ -4,7 +4,7 @@
  * их видно в диффе и их можно править, не трогая PHP.
  */
 
-namespace ApexFlow;
+namespace SiteCore;
 
 // Прямой вызов файла мимо WordPress запрещён.
 if (!defined('ABSPATH')) {

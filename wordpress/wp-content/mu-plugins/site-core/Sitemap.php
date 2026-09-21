@@ -4,7 +4,7 @@
  * wp-sitemap.xml отдавалась поисковикам как 404 и уходила в бесконечный редирект.
  */
 
-namespace ApexFlow;
+namespace SiteCore;
 
 // Прямой вызов файла мимо WordPress запрещён.
 if (!defined('ABSPATH')) {

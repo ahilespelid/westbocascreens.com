@@ -4,7 +4,7 @@
  * и расчёт средней оценки, который использует схема AggregateRating.
  */
 
-namespace ApexFlow;
+namespace SiteCore;
 
 // Прямой вызов файла мимо WordPress запрещён.
 if (!defined('ABSPATH')) {
@@ -14,13 +14,13 @@ if (!defined('ABSPATH')) {
 final class Reviews
 {
     /** @var string Тип записи, в котором хранятся отзывы. */
-    public const POST_TYPE = 'afn_review';
+    public const POST_TYPE = 'sc_review';
 
     /** @var string Мета-поле с оценкой от 1 до 5. */
-    private const META_RATING = '_afn_rating';
+    private const META_RATING = '_sc_rating';
 
     /** @var string Имя действия admin-post, обрабатывающего отправку формы. */
-    private const ACTION = 'afn_submit_review';
+    private const ACTION = 'sc_submit_review';
 
     /** @var int Сколько отзывов показывать на одной странице. */
     private const PER_PAGE = 3;
@@ -43,10 +43,10 @@ final class Reviews
         add_action('admin_post_nopriv_' . self::ACTION, [self::class, 'handleSubmit']);
 
         // Список отзывов с постраничной навигацией.
-        add_shortcode('afn_reviews_list', [self::class, 'renderList']);
+        add_shortcode('sc_reviews_list', [self::class, 'renderList']);
 
         // Форма отправки отзыва.
-        add_shortcode('afn_review_form', [self::class, 'renderForm']);
+        add_shortcode('sc_review_form', [self::class, 'renderForm']);
     }
 
     /**
@@ -83,7 +83,7 @@ final class Reviews
         $redirect_url = wp_get_referer() ?: home_url('/reviews/');
 
         // Nonce защищает от отправки формы со стороннего сайта.
-        $nonce = isset($_POST['afn_review_nonce']) ? sanitize_text_field(wp_unslash($_POST['afn_review_nonce'])) : '';
+        $nonce = isset($_POST['sc_review_nonce']) ? sanitize_text_field(wp_unslash($_POST['sc_review_nonce'])) : '';
 
         // Проверка не прошла — дальше не идём, чтобы не плодить мусорные записи.
         if (!wp_verify_nonce($nonce, self::ACTION)) {
@@ -91,15 +91,15 @@ final class Reviews
         }
 
         // Honeypot: поле скрыто от людей, его заполняют только боты.
-        if (!empty($_POST['afn_website'])) {
+        if (!empty($_POST['sc_website'])) {
             // Боту показываем обычное «спасибо» — пусть считает, что всё получилось.
             self::redirect($redirect_url, 'thanks');
         }
 
         // Имя и текст — обязательные поля, оценка нормализуется к диапазону 1–5.
-        $author_name = sanitize_text_field(wp_unslash($_POST['afn_name'] ?? ''));
-        $review_text = sanitize_textarea_field(wp_unslash($_POST['afn_review_text'] ?? ''));
-        $rating = self::normalizeRating($_POST['afn_rating'] ?? self::DEFAULT_RATING);
+        $author_name = sanitize_text_field(wp_unslash($_POST['sc_name'] ?? ''));
+        $review_text = sanitize_textarea_field(wp_unslash($_POST['sc_review_text'] ?? ''));
+        $rating = self::normalizeRating($_POST['sc_rating'] ?? self::DEFAULT_RATING);
 
         // Пустая форма — возвращаем с ошибкой, ничего не сохраняя.
         if ($author_name === '' || $review_text === '') {
@@ -147,11 +147,11 @@ final class Reviews
 
         // Ни одного отзыва — вместо пустоты приглашаем оставить первый.
         if (!$query->have_posts()) {
-            echo '<p class="afn-reviews-empty">Be the first to leave a review!</p>';
+            echo '<p class="sc-reviews-empty">Be the first to leave a review!</p>';
             return (string) ob_get_clean();
         }
 
-        echo '<div class="afn-reviews-grid">';
+        echo '<div class="sc-reviews-grid">';
 
         // Стандартный цикл WordPress: the_post() подставляет текущий отзыв в глобальные функции.
         while ($query->have_posts()) {
@@ -160,10 +160,10 @@ final class Reviews
             // Оценка из мета-поля; пустое значение трактуем как максимальное.
             $rating = self::normalizeRating(get_post_meta(get_the_ID(), self::META_RATING, true));
             ?>
-            <div class="afn-review-card">
-                <div class="afn-review-stars"><?php echo self::stars($rating); ?></div>
-                <p class="afn-review-text">&ldquo;<?php echo nl2br(esc_html(get_the_content())); ?>&rdquo;</p>
-                <div class="afn-review-author">&mdash; <?php echo esc_html(get_the_title()); ?></div>
+            <div class="sc-review-card">
+                <div class="sc-review-stars"><?php echo self::stars($rating); ?></div>
+                <p class="sc-review-text">&ldquo;<?php echo nl2br(esc_html(get_the_content())); ?>&rdquo;</p>
+                <div class="sc-review-author">&mdash; <?php echo esc_html(get_the_title()); ?></div>
             </div>
             <?php
         }
@@ -191,35 +191,35 @@ final class Reviews
         ob_start();
 
         // Результат предыдущей отправки приходит в query-параметре после редиректа.
-        $submit_result = isset($_GET['afn_review']) ? sanitize_key($_GET['afn_review']) : '';
+        $submit_result = isset($_GET['sc_review']) ? sanitize_key($_GET['sc_review']) : '';
 
         // Успех и ошибка отличаются только классом и текстом — разводим их одним условием.
         if ($submit_result === 'thanks') {
-            echo '<div class="afn-review-notice afn-review-success">Thank you! Your review has been submitted and will appear once approved.</div>';
+            echo '<div class="sc-review-notice sc-review-success">Thank you! Your review has been submitted and will appear once approved.</div>';
         } elseif ($submit_result === 'error') {
-            echo '<div class="afn-review-notice afn-review-error">Please fill in your name and review, then try again.</div>';
+            echo '<div class="sc-review-notice sc-review-error">Please fill in your name and review, then try again.</div>';
         }
         ?>
-        <form method="post" action="<?php echo esc_url(admin_url('admin-post.php')); ?>" class="afn-review-form">
+        <form method="post" action="<?php echo esc_url(admin_url('admin-post.php')); ?>" class="sc-review-form">
             <input type="hidden" name="action" value="<?php echo esc_attr(self::ACTION); ?>">
-            <?php wp_nonce_field(self::ACTION, 'afn_review_nonce'); ?>
-            <div class="afn-honeypot" aria-hidden="true">
-                <label>Leave this field empty<input type="text" name="afn_website" tabindex="-1" autocomplete="off"></label>
+            <?php wp_nonce_field(self::ACTION, 'sc_review_nonce'); ?>
+            <div class="sc-honeypot" aria-hidden="true">
+                <label>Leave this field empty<input type="text" name="sc_website" tabindex="-1" autocomplete="off"></label>
             </div>
             <label>Your Name
-                <input type="text" name="afn_name" required maxlength="80">
+                <input type="text" name="sc_name" required maxlength="80">
             </label>
             <label>Rating
-                <select name="afn_rating" required>
+                <select name="sc_rating" required>
                     <?php foreach (self::ratingOptions() as $value => $label): ?>
                         <option value="<?php echo esc_attr((string) $value); ?>"><?php echo esc_html($label); ?></option>
                     <?php endforeach; ?>
                 </select>
             </label>
             <label>Your Review
-                <textarea name="afn_review_text" required maxlength="1000" rows="5"></textarea>
+                <textarea name="sc_review_text" required maxlength="1000" rows="5"></textarea>
             </label>
-            <button type="submit" class="afn-header-cta">Submit Review</button>
+            <button type="submit" class="sc-header-cta">Submit Review</button>
         </form>
         <?php
         return (string) ob_get_clean();
@@ -267,7 +267,7 @@ final class Reviews
      */
     private static function renderPagination(int $current_page, int $total_pages): void
     {
-        echo '<div class="afn-review-pagination">';
+        echo '<div class="sc-review-pagination">';
 
         // Страниц немного (3 отзыва на страницу), поэтому показываем их все без «…».
         for ($page_number = 1; $page_number <= $total_pages; $page_number++) {
@@ -275,9 +275,9 @@ final class Reviews
             $page_url = esc_url(add_query_arg('revpage', $page_number));
 
             // Текущая страница подсвечивается отдельным классом.
-            $active_class = $page_number === $current_page ? ' afn-page-current' : '';
+            $active_class = $page_number === $current_page ? ' sc-page-current' : '';
 
-            echo '<a class="afn-page-link' . $active_class . '" href="' . $page_url . '#reviews">' . $page_number . '</a>';
+            echo '<a class="sc-page-link' . $active_class . '" href="' . $page_url . '#reviews">' . $page_number . '</a>';
         }
 
         echo '</div>';
@@ -339,7 +339,7 @@ final class Reviews
     private static function redirect(string $redirect_url, string $result): never
     {
         // wp_safe_redirect не выпустит посетителя на чужой домен, даже если referer подделан.
-        wp_safe_redirect(add_query_arg('afn_review', $result, $redirect_url));
+        wp_safe_redirect(add_query_arg('sc_review', $result, $redirect_url));
 
         // Без exit выполнение продолжится и WordPress допечатает страницу после заголовка Location.
         exit;
