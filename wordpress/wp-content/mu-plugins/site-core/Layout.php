@@ -20,6 +20,11 @@ final class Layout
      */
     public static function register(): void
     {
+        // Название и слоган сайта берутся из кода, а не из настроек в базе: там осталось
+        // старое имя, и оно утекало в шапку темы, RSS, REST API и письма WordPress.
+        add_filter('pre_option_blogname', static fn (): string => Config::BRAND);
+        add_filter('pre_option_blogdescription', static fn (): string => Config::TAGLINE);
+
         // Сайдбар не нужен ни на одной странице: макет одноколоночный.
         add_filter('generate_sidebar_layout', static fn (): string => 'no-sidebar');
 

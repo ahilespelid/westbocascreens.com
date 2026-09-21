@@ -53,21 +53,22 @@ body{background:#f7f9fa;}
 .sc-video-section{max-width:1000px;margin:64px auto;padding:0 24px;text-align:center;}
 .sc-video-wrap{position:relative;border-radius:12px;overflow:hidden;box-shadow:0 10px 40px rgba(20,40,50,.18);margin-top:28px;background:#0b1a22;}
 /*
- * Ролик 1920×1080, но в первые ~15 секунд по бокам вшиты чёрные полосы по 60 px:
- * реальная картинка — 1800×1080. Рамка получает пропорции картинки, а видео
- * растягивается на 1920/1800 ширины рамки и сдвигается влево на 60/1800 — полосы
- * уходят за края и обрезаются overflow:hidden у рамки. На остальных сценах
- * срезается по 3% ширины с каждого края, это незаметно.
+ * Ролик 1920×1080, но почти во все сцены по бокам вшиты чёрные полосы: в статике
+ * до 97 px, в первую секунду сцены до 149 px (эффект наезда). Срезаем по 120 px
+ * с каждой стороны: видимая картинка 1680×1080. Рамка получает эти пропорции,
+ * видео растягивается на 1920/1680 её ширины и сдвигается влево на 120/1680 —
+ * полосы уходят за края и обрезаются overflow:hidden у рамки.
  */
-.sc-video-wrap--cropped{aspect-ratio:1800/1080;}
-.sc-video-wrap--cropped video{width:calc(100% * 1920 / 1800);max-width:none;height:auto;margin-left:calc(-100% * 60 / 1800);display:block;aspect-ratio:16/9;}
+.sc-video-wrap--cropped{aspect-ratio:1680/1080;}
+.sc-video-wrap--cropped video{width:calc(100% * 1920 / 1680);max-width:none;height:auto;margin-left:calc(-100% * 120 / 1680);display:block;aspect-ratio:16/9;}
 /* Кнопка звука по центру снизу: на любой сцене видна, белая обводка отделяет её от тёмного кадра. */
 .sc-sound-toggle{position:absolute;left:50%;bottom:16px;transform:translateX(-50%);width:52px;height:52px;border-radius:50%;background:rgba(19,39,52,.8);color:#fff;border:2px solid rgba(255,255,255,.85);font-size:1.4rem;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 14px rgba(0,0,0,.35);-webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px);}
 .sc-sound-toggle:hover{background:rgba(19,39,52,.95);}
 
 /* ---------- Герой. Фон приходит переменной --sc-hero-image с версией файла; относительный путь — запасной ---------- */
 .sc-hero{position:relative;background:linear-gradient(135deg,rgba(19,39,52,.88),rgba(33,82,112,.82)),var(--sc-hero-image,url('../../../uploads/site/hero-patio.jpg')) center/cover no-repeat;color:#fff;padding:110px 24px 130px;text-align:center;overflow:hidden;}
-.sc-hero::after{content:"";position:absolute;left:0;right:0;bottom:-1px;height:70px;background:#f7f9fa;clip-path:polygon(0 60%,10% 55%,25% 65%,40% 50%,55% 62%,70% 48%,85% 60%,100% 52%,100% 100%,0 100%);}
+/* Волна залита цветом блока контента (белый), а не страницы; выход за края на 2px закрывает полупиксельный зазор. */
+.sc-hero::after{content:"";position:absolute;left:-2px;right:-2px;bottom:-1px;height:70px;background:#fff;clip-path:polygon(0 60%,10% 55%,25% 65%,40% 50%,55% 62%,70% 48%,85% 60%,100% 52%,100% 100%,0 100%);}
 .sc-hero h1{font-size:2.6rem;max-width:900px;margin:0 auto 18px;color:#fff;line-height:1.15;}
 .sc-hero p{font-size:1.2rem;max-width:680px;margin:0 auto 32px;opacity:.92;}
 
