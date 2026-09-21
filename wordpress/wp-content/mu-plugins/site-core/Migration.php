@@ -17,8 +17,20 @@ final class Migration
     /** @var string Опция с номером последней выполненной миграции. */
     private const OPTION = 'sc_schema_version';
 
+    /**
+     * @var array<string, string> Старые упоминания бренда и их замена. Порядок важен:
+     * длинные фразы идут раньше коротких, иначе «Apex Flow» внутри них заменился бы первым.
+     */
+    private const OLD_BRAND = [
+        'Wow, the Apex Flow isn&#039;t changing.' => '',
+        'Wow, the Apex Flow isn’t changing.' => '',
+        "Wow, the Apex Flow isn't changing." => '',
+        'Wow Apex Flow' => Config::BRAND,
+        'Apex Flow' => Config::BRAND,
+    ];
+
     /** @var int Номер миграции, до которой должна быть доведена база. */
-    private const VERSION = 2;
+    private const VERSION = 3;
 
     /**
      * Подписка на хуки модуля.
@@ -54,9 +66,113 @@ final class Migration
         if ($current_version < 2) {
             self::syncBrandToDatabase();
         }
+        if ($current_version < 3) {
+            self::purgePageRevisions();
+            self::scrubOldBrand();
+        }
 
         // Номер пишем после успеха; autoload — чтобы проверка выше не ходила в базу.
         update_option(self::OPTION, self::VERSION, true);
+    }
+
+    /**
+     * Миграция 3, часть 1: ревизии и автосохранения страниц. Тексты страниц живут в git
+     * с полной историей, а ревизии в базе хранили старые версии со старым брендом.
+     *
+     * @return void
+     */
+    private static function purgePageRevisions(): void
+    {
+        // Объект доступа к базе WordPress с уже подставленными префиксами таблиц.
+        global $wpdb;
+
+        // Идентификаторы всех ревизий и автосохранений, чей родитель — страница.
+        $revision_ids = $wpdb->get_col(
+            "SELECT r.ID FROM {$wpdb->posts} r JOIN {$wpdb->posts} p ON p.ID = r.post_parent WHERE r.post_type = 'revision' AND p.post_type = 'page'"
+        );
+
+        // wp_delete_post_revision, а не DELETE: ядро заодно уберёт мета-поля и кэш ревизии.
+        array_map('wp_delete_post_revision', array_map('intval', $revision_ids));
+    }
+
+    /**
+     * Миграция 3, часть 2: страховочная замена старого бренда по всей базе — в записях
+     * любых типов, их мета-полях и настройках. Сериализованные значения идут через API
+     * WordPress: SQL REPLACE поменял бы длину строки и сломал сериализацию.
+     *
+     * @return void
+     */
+    private static function scrubOldBrand(): void
+    {
+        // Объект доступа к базе WordPress с уже подставленными префиксами таблиц.
+        global $wpdb;
+
+        // Шаблон LIKE для поиска: общая часть всех старых вариантов.
+        $like = '%' . $wpdb->esc_like('Apex Flow') . '%';
+
+        // Текстовые поля записей: сериализации там нет, поэтому строковая замена безопасна.
+        $post_rows = $wpdb->get_results($wpdb->prepare(
+            "SELECT ID, post_title, post_content, post_excerpt FROM {$wpdb->posts} WHERE post_title LIKE %s OR post_content LIKE %s OR post_excerpt LIKE %s",
+            $like,
+            $like,
+            $like
+        ), ARRAY_A);
+        foreach ($post_rows as $post_row) {
+            // ID отделяем, остальное — поля для замены.
+            $post_id = (int) array_shift($post_row);
+            $wpdb->update($wpdb->posts, self::replaceOldBrand($post_row), ['ID' => $post_id]);
+            clean_post_cache($post_id);
+        }
+
+        // Мета-поля записей: чтение и запись через API, чтобы массивы пересериализовались.
+        $meta_rows = $wpdb->get_results($wpdb->prepare(
+            "SELECT post_id, meta_key FROM {$wpdb->postmeta} WHERE meta_value LIKE %s",
+            $like
+        ));
+        foreach ($meta_rows as $meta_row) {
+            // Каждое значение ключа — отдельно: у одного ключа их может быть несколько.
+            foreach (get_post_meta((int) $meta_row->post_id, $meta_row->meta_key) as $meta_value) {
+                update_post_meta((int) $meta_row->post_id, $meta_row->meta_key, self::replaceOldBrand($meta_value), $meta_value);
+            }
+        }
+
+        // Настройки: то же самое через get_option / update_option.
+        $option_names = $wpdb->get_col($wpdb->prepare(
+            "SELECT option_name FROM {$wpdb->options} WHERE option_value LIKE %s",
+            $like
+        ));
+        foreach ($option_names as $option_name) {
+            update_option($option_name, self::replaceOldBrand(get_option($option_name)));
+        }
+    }
+
+    /**
+     * Заменяет старый бренд в строке или рекурсивно во всех строках массива/объекта.
+     *
+     * @param mixed $value Значение любого типа.
+     * @return mixed То же значение с заменой; нестроковые скаляры — без изменений.
+     */
+    private static function replaceOldBrand(mixed $value): mixed
+    {
+        // Строка — основной случай: str_replace с массивами применяет пары по порядку.
+        if (is_string($value)) {
+            return str_replace(array_keys(self::OLD_BRAND), array_values(self::OLD_BRAND), $value);
+        }
+
+        // Массив — рекурсивно по всем элементам с сохранением ключей.
+        if (is_array($value)) {
+            return array_map([self::class, 'replaceOldBrand'], $value);
+        }
+
+        // Объект — по публичным свойствам; сам объект остаётся тем же экземпляром.
+        if (is_object($value)) {
+            foreach (get_object_vars($value) as $property => $property_value) {
+                $value->$property = self::replaceOldBrand($property_value);
+            }
+        }
+
+        // Числа, булевы и null не меняются.
+        return $value;
     }
 
     /**

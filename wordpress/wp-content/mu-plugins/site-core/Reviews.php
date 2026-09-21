@@ -161,7 +161,7 @@ final class Reviews
             $rating = self::normalizeRating(get_post_meta(get_the_ID(), self::META_RATING, true));
             ?>
             <div class="sc-review-card">
-                <div class="sc-review-stars"><?php echo self::stars($rating); ?></div>
+                <?php echo Blocks::stars($rating); ?>
                 <p class="sc-review-text">&ldquo;<?php echo nl2br(esc_html(get_the_content())); ?>&rdquo;</p>
                 <div class="sc-review-author">&mdash; <?php echo esc_html(get_the_title()); ?></div>
             </div>
@@ -210,7 +210,7 @@ final class Reviews
                 <input type="text" name="sc_name" required maxlength="80">
             </label>
             <label>Rating
-                <select name="sc_rating" required>
+                <select name="sc_rating">
                     <?php foreach (self::ratingOptions() as $value => $label): ?>
                         <option value="<?php echo esc_attr((string) $value); ?>"><?php echo esc_html($label); ?></option>
                     <?php endforeach; ?>
@@ -283,17 +283,6 @@ final class Reviews
         echo '</div>';
     }
 
-    /**
-     * Оценка звёздами: закрашенные плюс пустые до пяти.
-     *
-     * @param int $rating Оценка от 1 до 5.
-     * @return string HTML-сущности звёзд.
-     */
-    private static function stars(int $rating): string
-    {
-        // &#9733; — закрашенная звезда, &#9734; — контурная.
-        return str_repeat('&#9733;', $rating) . str_repeat('&#9734;', 5 - $rating);
-    }
 
     /**
      * Приводит произвольное значение к оценке в диапазоне 1–5.

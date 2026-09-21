@@ -24,8 +24,15 @@ final class Seo
     private const META_DESCRIPTION = '_sc_meta_description';
 
     /**
-     * @var array<string, array{title: string, description: string}> Мета по слагу страницы.
+     * @var array<string, string> Запасное мета-поле базы для ключей таблицы PAGES.
+     * У service запасного нет: услуга — признак страницы услуги, и он задаётся только кодом.
+     */
+    private const META_KEYS = ['title' => self::META_TITLE, 'description' => self::META_DESCRIPTION];
+
+    /**
+     * @var array<string, array{title: string, description: string, service?: string}> Мета по слагу страницы.
      * Заголовок держим в пределах ~60 символов, описание — ~155: дальше поиск обрезает.
+     * service — название услуги для Schema.org; есть только у страниц услуг.
      */
     private const PAGES = [
         'home' => [
@@ -34,19 +41,23 @@ final class Seo
         ],
         'motorized-retractable-screens' => [
             'title'       => 'Motorized Retractable Screens | West Boca Raton, FL',
-            'description' => 'Motorized retractable screens for patios, garages and outdoor living spaces in West Boca Raton. Smart-home ready, hurricane-rated, full insect and UV protection.',
+            'description' => 'Motorized retractable screens for patios, garages and outdoor living spaces in West Boca Raton. Smart-home ready, hurricane-rated, insect and UV protection.',
+            'service'     => 'Motorized Retractable Screens',
         ],
         'retractable-awnings-pergolas' => [
             'title'       => 'Retractable Awnings & Pergolas | West Boca Raton, FL',
             'description' => 'Custom motorized retractable awnings and pergolas in West Boca Raton. Sunbrella fabrics, smart wind sensors, dimmable lighting, hurricane-rated frames.',
+            'service'     => 'Retractable Awnings & Pergolas',
         ],
         'pool-patio-screen-enclosures' => [
             'title'       => 'Pool & Patio Screen Enclosures | Boca Raton, FL',
             'description' => 'Custom-engineered pool cage and patio screen enclosures in Boca Raton. Full aluminum framing, hurricane-code engineered, complete insect protection.',
+            'service'     => 'Pool & Patio Screen Enclosures',
         ],
         'commercial-custom-shade-solutions' => [
             'title'       => 'Commercial Shade & Screen Systems | Boca Raton, FL',
             'description' => 'Heavy-duty motorized screens and awnings for Boca Raton restaurants, country clubs and commercial outdoor dining. Code-engineered, smart wind sensors.',
+            'service'     => 'Commercial Custom Shade Solutions',
         ],
         'reviews' => [
             'title'       => 'Customer Reviews | West Boca Screens & Awnings',
@@ -79,7 +90,7 @@ final class Seo
     public static function renderDescription(): void
     {
         // Описание страницы; пустое — тег не печатаем вовсе.
-        $description = self::value('description', self::META_DESCRIPTION);
+        $description = self::field('description');
 
         // Пустой description хуже отсутствующего: поисковик решит, что страница пустая.
         if ($description === '') {
@@ -98,17 +109,17 @@ final class Seo
     public static function renderSocialCards(): void
     {
         // Заголовок: собственный для страницы, иначе — тот, что собрал WordPress.
-        $title = self::value('title', self::META_TITLE) ?: wp_get_document_title();
+        $title = self::field('title') ?: wp_get_document_title();
 
         // Описание: собственное, иначе — общее описание сайта из настроек.
-        $description = self::value('description', self::META_DESCRIPTION) ?: get_bloginfo('description');
+        $description = self::field('description') ?: get_bloginfo('description');
 
         // Канонический адрес страницы; для архивов и главной — корень сайта.
         $page_id = get_queried_object_id();
         $url = $page_id ? get_permalink($page_id) : home_url('/');
 
         // Картинка превью одна на весь сайт: 1200×630 — размер, который ждут соцсети.
-        $image = Config::contentUrl(Config::OG_IMAGE);
+        $image = Config::imageUrl(Config::OG_IMAGE) ?: Config::contentUrl(Config::OG_IMAGE);
         ?>
         <meta property="og:type" content="website">
         <meta property="og:site_name" content="<?php echo esc_attr(Config::BRAND); ?>">
@@ -135,7 +146,7 @@ final class Seo
     public static function filterTitle(array $title_parts): array
     {
         // Собственный заголовок страницы; пустой — оставляем сборку ядра как есть.
-        $custom_title = self::value('title', self::META_TITLE);
+        $custom_title = self::field('title');
 
         // Возврат без изменений — самый частый случай, поэтому проверяем первым.
         if ($custom_title === '') {
@@ -147,13 +158,13 @@ final class Seo
     }
 
     /**
-     * Значение меты: сначала из кода по слагу страницы, затем из базы.
+     * Мета текущей страницы: сначала из кода по слагу, затем из базы. Публичный —
+     * Schema берёт отсюда название и описание услуги, чтобы тексты не расходились.
      *
-     * @param string $key Ключ в таблице PAGES: title или description.
-     * @param string $meta_key Имя мета-поля базы для запасного варианта.
+     * @param string $key Ключ таблицы PAGES: title, description или service.
      * @return string Значение или пустая строка.
      */
-    private static function value(string $key, string $meta_key): string
+    public static function field(string $key): string
     {
         // Идентификатор того, что сейчас показывается: страница, запись, архив.
         $page_id = get_queried_object_id();
@@ -172,6 +183,6 @@ final class Seo
         }
 
         // Приведение к строке: get_post_meta может вернуть false или массив при кривых данных.
-        return (string) get_post_meta($page_id, $meta_key, true);
+        return isset(self::META_KEYS[$key]) ? (string) get_post_meta($page_id, self::META_KEYS[$key], true) : '';
     }
 }

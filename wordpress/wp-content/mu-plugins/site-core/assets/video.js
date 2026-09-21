@@ -26,9 +26,13 @@
         }
         loaded = true;
 
-        // До этого момента в data-src, чтобы браузер не начинал качать видео заранее.
-        video.querySelectorAll('source[data-src]').forEach(function (source) {
-            source.src = source.getAttribute('data-src');
+        // Источники создаём только сейчас: до этого адреса лежат в data-атрибутах,
+        // чтобы браузер не начинал качать видео заранее. webm первым — он легче.
+        [['webm', 'video/webm'], ['mp4', 'video/mp4']].forEach(function (format) {
+            var source = document.createElement('source');
+            source.src = video.getAttribute('data-' + format[0]);
+            source.type = format[1];
+            video.appendChild(source);
         });
 
         // load() заставляет видео перечитать источники после подстановки адресов.
