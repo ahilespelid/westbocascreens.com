@@ -41,6 +41,22 @@ final class Config
     /** @var string Фото выдвижной маркизы для блока о навесах. */
     public const AWNING_IMAGE = '/uploads/site/awning-feature.jpg';
 
+    /**
+     * @var string Демонстрационный ролик. Два файла — один контент: webm понимают все
+     * современные браузеры, mp4 остаётся для старых версий Safari и iOS.
+     */
+    public const VIDEO_WEBM = '/uploads/site/promo.webm';
+    public const VIDEO_MP4 = '/uploads/site/promo.mp4';
+
+    /**
+     * @var int Ширина и высота видимой части кадра. В сам файл по краям вшиты чёрные
+     * полосы по 4 px, поэтому с каждой стороны срезается по VIDEO_BAR пикселей:
+     * рамка плеера получает пропорции того, что останется.
+     */
+    public const VIDEO_WIDTH = 708;
+    public const VIDEO_HEIGHT = 478;
+    public const VIDEO_BAR = 6;
+
     /** @var string Картинка для превью ссылки в мессенджерах (Open Graph). */
     public const OG_IMAGE = '/uploads/site/og-image.jpg';
 

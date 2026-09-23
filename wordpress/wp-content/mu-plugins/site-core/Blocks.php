@@ -198,9 +198,10 @@ final class Blocks
     {
         ?>
         <?php // Адреса файлов в data-атрибутах: <source> без src невалиден, а с src браузер начал бы качать сразу. ?>
-        <video id="sc-demo-video" muted loop playsinline preload="none" poster="<?php echo esc_url(Config::assetUrl(Config::HERO_IMAGE)); ?>"
-               data-webm="<?php echo esc_url(Config::assetUrl('/uploads/site/hero-demo.webm')); ?>"
-               data-mp4="<?php echo esc_url(Config::assetUrl('/uploads/site/hero-demo.mp4')); ?>"></video>
+        <video id="sc-demo-video" class="sc-video-cropped" muted loop playsinline preload="none" poster="<?php echo esc_url(Config::assetUrl(Config::HERO_IMAGE)); ?>"
+               data-webm="<?php echo esc_url(Config::assetUrl(Config::VIDEO_WEBM)); ?>"
+               data-mp4="<?php echo esc_url(Config::assetUrl(Config::VIDEO_MP4)); ?>"
+               width="<?php echo esc_attr((string) Config::VIDEO_WIDTH); ?>" height="<?php echo esc_attr((string) Config::VIDEO_HEIGHT); ?>"></video>
         <button type="button" class="sc-sound-toggle" aria-label="Toggle sound">&#128264;</button>
         <?php
     }
