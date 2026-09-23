@@ -48,12 +48,16 @@ final class Config
     public const VIDEO_WEBM = '/uploads/site/promo.webm';
     public const VIDEO_MP4 = '/uploads/site/promo.mp4';
 
+    /** @var string Заставка плеера: первый кадр ролика, поэтому старт незаметен. */
+    public const VIDEO_POSTER = '/uploads/site/promo-poster.jpg';
+
     /**
-     * @var int Ширина и высота видимой части кадра. В сам файл по краям вшиты чёрные
-     * полосы по 4 px, поэтому с каждой стороны срезается по VIDEO_BAR пикселей:
-     * рамка плеера получает пропорции того, что останется.
+     * @var int Размеры кадра. Пиксель в файле неквадратный: кодируется 720×478,
+     * показывается как 722×478. По краям вшиты чёрные полосы, в экранных пикселях
+     * это по VIDEO_BAR с каждой стороны, поэтому видимая часть — 710×478.
+     * Те же числа заданы в site.css: там они задают пропорции рамки и сдвиг видео.
      */
-    public const VIDEO_WIDTH = 708;
+    public const VIDEO_WIDTH = 710;
     public const VIDEO_HEIGHT = 478;
     public const VIDEO_BAR = 6;
 
