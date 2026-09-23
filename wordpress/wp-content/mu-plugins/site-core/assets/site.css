@@ -54,14 +54,16 @@ body{background:#f7f9fa;}
 .sc-video-section{max-width:1000px;margin:64px auto;padding:0 24px;text-align:center;}
 .sc-video-wrap{position:relative;border-radius:12px;overflow:hidden;box-shadow:0 10px 40px rgba(20,40,50,.18);margin-top:28px;background:#0b1a22;}
 /*
- * Рамка плеера повторяет пропорции видимой части кадра (708×478). В файле по краям
- * вшиты чёрные полосы по 4 px: видео растягивается на 720/708 ширины рамки и сдвигается
- * влево на 6/708 — полосы уходят за края и обрезаются overflow:hidden у рамки.
- * Значения держим согласованными с константами VIDEO_* в Config.
+ * Рамка плеера повторяет пропорции видимой части кадра (710×478 экранных пикселей;
+ * пиксель в файле неквадратный, 720×478 кодируются как 722×478). Видео растянуто
+ * абсолютным позиционированием на всю рамку, поэтому его размер не зависит ни от
+ * заставки, ни от момента, когда подгрузятся метаданные, — вёрстка не дёргается.
+ * Ширина 722/710 со сдвигом влево на 6/710 уводит вшитые чёрные полосы за края,
+ * а overflow:hidden у рамки их срезает. Числа те же, что в константах VIDEO_* Config.
  */
-.sc-video-wrap{aspect-ratio:708/478;}
-.sc-video-wrap video{display:block;width:100%;height:100%;object-fit:cover;}
-.sc-video-wrap video.sc-video-cropped{width:calc(100% * 720 / 708);max-width:none;height:auto;margin-left:calc(-100% * 6 / 708);}
+.sc-video-wrap{aspect-ratio:710/478;}
+.sc-video-wrap video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block;}
+.sc-video-wrap video.sc-video-cropped{width:calc(100% * 722 / 710);max-width:none;left:calc(-100% * 6 / 710);}
 /* Кнопка звука по центру снизу: на любой сцене видна, белая обводка отделяет её от тёмного кадра. */
 .sc-sound-toggle{position:absolute;left:50%;bottom:16px;transform:translateX(-50%);width:52px;height:52px;border-radius:50%;background:rgba(19,39,52,.8);color:#fff;border:2px solid rgba(255,255,255,.85);font-size:1.4rem;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 14px rgba(0,0,0,.35);-webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px);}
 .sc-sound-toggle:hover{background:rgba(19,39,52,.95);}
