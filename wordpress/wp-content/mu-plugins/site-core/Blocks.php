@@ -200,11 +200,15 @@ final class Blocks
     }
 
     /**
-     * Одно собственное видео из uploads: грузится лениво скриптом video.js. Роликов
-     * в блоке может быть несколько — каждый в своей рамке с собственным аспектом
-     * и, если у ролика вшиты чёрные полосы (crop_width задан), своей обрезкой.
+     * Одно собственное видео из uploads. Роликов в блоке может быть несколько — каждый
+     * в своей рамке с собственным аспектом и, если у ролика вшиты чёрные полосы
+     * (crop_width задан), своей обрезкой.
      *
-     * @param array{webm: string, mp4: string, poster: string, width: int, height: int, crop_width: int|null, crop_shift: int|null, has_audio: bool} $video Описание ролика из Config::VIDEOS.
+     * Автозапуск — только у одного ролика в блоке (Config::VIDEOS), у остальных —
+     * нативный плеер с кнопкой play: если играют оба сразу, при первом клике
+     * посетителя звук включается у всех разом, и получается каша из двух дорожек.
+     *
+     * @param array{webm: string, mp4: string, poster: string, width: int, height: int, crop_width: int|null, crop_shift: int|null, autoplay: bool} $video Описание ролика из Config::VIDEOS.
      * @param int $number Порядковый номер ролика — только для уникального id элемента.
      * @return void
      */
@@ -212,16 +216,26 @@ final class Blocks
     {
         // Обрезка нужна не всем роликам: у чистого 16:9 crop_width не задан.
         $is_cropped = $video['crop_width'] !== null;
+
+        // Класс обрезки общий для обоих сценариев ниже.
+        $cropped_class = $is_cropped ? ' sc-video-cropped' : '';
         ?>
         <?php // Аспект рамки и, если нужно, параметры обрезки — переменными CSS в style, а не отдельным классом на каждый размер. ?>
         <div class="sc-video-wrap" style="--video-width:<?php echo esc_attr((string) $video['width']); ?>;--video-ratio:<?php echo esc_attr($video['width'] . '/' . $video['height']); ?>;<?php echo $is_cropped ? '--crop-width:' . esc_attr((string) $video['crop_width']) . ';--crop-shift:' . esc_attr((string) $video['crop_shift']) . ';' : ''; ?>">
-            <?php // Адреса файлов в data-атрибутах: <source> без src невалиден, а с src браузер начал бы качать сразу. ?>
-            <video id="sc-demo-video-<?php echo esc_attr((string) $number); ?>" class="sc-demo-video<?php echo $is_cropped ? ' sc-video-cropped' : ''; ?>" muted loop playsinline preload="none" poster="<?php echo esc_url(Config::assetUrl($video['poster'])); ?>"
-                   data-webm="<?php echo esc_url(Config::assetUrl($video['webm'])); ?>"
-                   data-mp4="<?php echo esc_url(Config::assetUrl($video['mp4'])); ?>"
-                   width="<?php echo esc_attr((string) $video['width']); ?>" height="<?php echo esc_attr((string) $video['height']); ?>"></video>
-            <?php if ($video['has_audio']): ?>
+            <?php if ($video['autoplay']): ?>
+                <?php // Адреса файлов в data-атрибутах: <source> без src невалиден, а с src браузер начал бы качать сразу. Грузит и запускает video.js по факту появления в зоне видимости. ?>
+                <video id="sc-demo-video-<?php echo esc_attr((string) $number); ?>" class="sc-demo-video<?php echo $cropped_class; ?>" muted loop playsinline preload="none" poster="<?php echo esc_url(Config::assetUrl($video['poster'])); ?>"
+                       data-webm="<?php echo esc_url(Config::assetUrl($video['webm'])); ?>"
+                       data-mp4="<?php echo esc_url(Config::assetUrl($video['mp4'])); ?>"
+                       width="<?php echo esc_attr((string) $video['width']); ?>" height="<?php echo esc_attr((string) $video['height']); ?>"></video>
                 <button type="button" class="sc-sound-toggle" aria-label="Toggle sound">&#128264;</button>
+            <?php else: ?>
+                <?php // Без автозапуска: нативные controls и источники сразу в разметке — preload="none" не даст браузеру качать их до нажатия play, а сам плеер video.js не трогает (нет класса sc-demo-video). ?>
+                <video class="<?php echo esc_attr(trim($cropped_class)); ?>" controls playsinline preload="none" poster="<?php echo esc_url(Config::assetUrl($video['poster'])); ?>"
+                       width="<?php echo esc_attr((string) $video['width']); ?>" height="<?php echo esc_attr((string) $video['height']); ?>">
+                    <source src="<?php echo esc_url(Config::assetUrl($video['webm'])); ?>" type="video/webm">
+                    <source src="<?php echo esc_url(Config::assetUrl($video['mp4'])); ?>" type="video/mp4">
+                </video>
             <?php endif; ?>
         </div>
         <?php
