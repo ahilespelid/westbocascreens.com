@@ -36,7 +36,7 @@ final class Migration
     private const LONG_DASH = ['&mdash;' => '-', '&ndash;' => '-', '—' => '-', '–' => '-'];
 
     /** @var int Номер миграции, до которой должна быть доведена база. */
-    private const VERSION = 4;
+    private const VERSION = 5;
 
     /**
      * Подписка на хуки модуля.
@@ -79,6 +79,11 @@ final class Migration
         if ($current_version < 4) {
             self::syncPagesFromFiles();
             self::scrubStrings(self::LONG_DASH, array_keys(self::LONG_DASH));
+        }
+        if ($current_version < 5) {
+            // Блок видео перестроен под несколько роликов (новая разметка,
+            // другие width/height) — обновлённый снимок должен попасть в базу.
+            self::syncPagesFromFiles();
         }
 
         // Номер пишем после успеха; autoload — чтобы проверка выше не ходила в базу.

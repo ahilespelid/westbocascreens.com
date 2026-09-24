@@ -65,8 +65,8 @@ final class Blocks
     /**
      * Демонстрационное видео. Если в конфигурации задан ролик YouTube, выводится
      * его превью-заглушка: тяжёлый плеер подгружается только по клику, поэтому
-     * скорость первой отрисовки не страдает. Пока ролик не выбран — играет
-     * собственное видео из uploads.
+     * скорость первой отрисовки не страдает. Пока ролик не выбран — один за другим
+     * играют собственные видео из uploads, их список задаёт Config::VIDEOS.
      *
      * @param string $heading Заголовок блока.
      * @param string $lede Подзаголовок.
@@ -78,8 +78,16 @@ final class Blocks
         <div class="sc-video-section">
             <h2><?php echo esc_html($heading); ?></h2>
             <p class="sc-section-lede"><?php echo esc_html($lede); ?></p>
-            <div class="sc-video-wrap">
-                <?php Config::YOUTUBE_ID === '' ? self::renderSelfHostedVideo() : self::renderYoutubeFacade(); ?>
+            <div class="sc-video-grid">
+                <?php if (Config::YOUTUBE_ID !== ''): ?>
+                    <div class="sc-video-wrap">
+                        <?php self::renderYoutubeFacade(); ?>
+                    </div>
+                <?php else: ?>
+                    <?php foreach (Config::VIDEOS as $index => $video): ?>
+                        <?php self::renderSelfHostedVideo($video, $index + 1); ?>
+                    <?php endforeach; ?>
+                <?php endif; ?>
             </div>
         </div>
         <?php
@@ -172,37 +180,50 @@ final class Blocks
     }
 
     /**
-     * Короткая врезка о коммерческих объектах перед подвалом.
+     * Короткая врезка перед подвалом с предложением бесплатного замера для частного
+     * дома. Стоит на всех страницах, кроме коммерческой, — там свой оффер, и упоминать
+     * рестораны на страницах для домовладельцев только сбивает с толку.
      *
      * @return void
      */
-    public static function renderCommercialTeaser(): void
+    public static function renderResidentialTeaser(): void
     {
         ?>
-        <div class="sc-commercial">
-            <div class="sc-commercial-inner">
-                <h2>Commercial Shading Solutions</h2>
-                <p>We custom design and install heavy-duty motorized screens and awnings for West Boca restaurants, country clubs, and commercial outdoor dining spaces.</p>
-                <a href="/commercial-custom-shade-solutions/" class="sc-commercial-link">See commercial projects &rarr;</a>
+        <div class="sc-footer-teaser">
+            <div class="sc-footer-teaser-inner">
+                <h2>Free Measurement for Your Patio, Pool or Backyard</h2>
+                <p>Not sure where to start? Our design team measures your patio, pool cage, or backyard on-site and hands you an exact price - no obligation, no pressure.</p>
+                <a href="#quote" class="sc-footer-teaser-link">Get a Free Estimate &rarr;</a>
             </div>
         </div>
         <?php
     }
 
     /**
-     * Собственное видео из uploads: грузится лениво скриптом video.js.
+     * Одно собственное видео из uploads: грузится лениво скриптом video.js. Роликов
+     * в блоке может быть несколько — каждый в своей рамке с собственным аспектом
+     * и, если у ролика вшиты чёрные полосы (crop_width задан), своей обрезкой.
      *
+     * @param array{webm: string, mp4: string, poster: string, width: int, height: int, crop_width: int|null, crop_shift: int|null, has_audio: bool} $video Описание ролика из Config::VIDEOS.
+     * @param int $number Порядковый номер ролика — только для уникального id элемента.
      * @return void
      */
-    private static function renderSelfHostedVideo(): void
+    private static function renderSelfHostedVideo(array $video, int $number): void
     {
+        // Обрезка нужна не всем роликам: у чистого 16:9 crop_width не задан.
+        $is_cropped = $video['crop_width'] !== null;
         ?>
-        <?php // Адреса файлов в data-атрибутах: <source> без src невалиден, а с src браузер начал бы качать сразу. ?>
-        <video id="sc-demo-video" class="sc-video-cropped" muted loop playsinline preload="none" poster="<?php echo esc_url(Config::assetUrl(Config::VIDEO_POSTER)); ?>"
-               data-webm="<?php echo esc_url(Config::assetUrl(Config::VIDEO_WEBM)); ?>"
-               data-mp4="<?php echo esc_url(Config::assetUrl(Config::VIDEO_MP4)); ?>"
-               width="<?php echo esc_attr((string) Config::VIDEO_WIDTH); ?>" height="<?php echo esc_attr((string) Config::VIDEO_HEIGHT); ?>"></video>
-        <button type="button" class="sc-sound-toggle" aria-label="Toggle sound">&#128264;</button>
+        <?php // Аспект рамки и, если нужно, параметры обрезки — переменными CSS в style, а не отдельным классом на каждый размер. ?>
+        <div class="sc-video-wrap" style="--video-width:<?php echo esc_attr((string) $video['width']); ?>;--video-ratio:<?php echo esc_attr($video['width'] . '/' . $video['height']); ?>;<?php echo $is_cropped ? '--crop-width:' . esc_attr((string) $video['crop_width']) . ';--crop-shift:' . esc_attr((string) $video['crop_shift']) . ';' : ''; ?>">
+            <?php // Адреса файлов в data-атрибутах: <source> без src невалиден, а с src браузер начал бы качать сразу. ?>
+            <video id="sc-demo-video-<?php echo esc_attr((string) $number); ?>" class="sc-demo-video<?php echo $is_cropped ? ' sc-video-cropped' : ''; ?>" muted loop playsinline preload="none" poster="<?php echo esc_url(Config::assetUrl($video['poster'])); ?>"
+                   data-webm="<?php echo esc_url(Config::assetUrl($video['webm'])); ?>"
+                   data-mp4="<?php echo esc_url(Config::assetUrl($video['mp4'])); ?>"
+                   width="<?php echo esc_attr((string) $video['width']); ?>" height="<?php echo esc_attr((string) $video['height']); ?>"></video>
+            <?php if ($video['has_audio']): ?>
+                <button type="button" class="sc-sound-toggle" aria-label="Toggle sound">&#128264;</button>
+            <?php endif; ?>
+        </div>
         <?php
     }
 

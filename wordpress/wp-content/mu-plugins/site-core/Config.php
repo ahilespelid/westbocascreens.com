@@ -42,24 +42,41 @@ final class Config
     public const AWNING_IMAGE = '/uploads/site/awning-feature.jpg';
 
     /**
-     * @var string Демонстрационный ролик. Два файла — один контент: webm понимают все
-     * современные браузеры, mp4 остаётся для старых версий Safari и iOS.
+     * @var array<int, array{webm: string, mp4: string, poster: string, width: int, height: int, crop_width: int|null, crop_shift: int|null, has_audio: bool}>
+     * Ролики блока «See It In Action» по порядку показа. Каждый — два файла с одним
+     * контентом (webm понимают все современные браузеры, mp4 — для старых Safari и iOS)
+     * плюс заставка первым кадром, чтобы старт был незаметен.
+     *
+     * width/height — видимый размер кадра, он же аспект рамки в CSS. crop_width/crop_shift
+     * заполнены только у роликов со вшитыми чёрными полосами по краям (пиксель в файле
+     * неквадратный): это ширина кадра БЕЗ обрезки и сдвиг влево в тех же единицах,
+     * что и width, — вместе они уводят полосы за рамку с overflow:hidden.
+     *
+     * has_audio включает кнопку звука.
      */
-    public const VIDEO_WEBM = '/uploads/site/promo.webm';
-    public const VIDEO_MP4 = '/uploads/site/promo.mp4';
-
-    /** @var string Заставка плеера: первый кадр ролика, поэтому старт незаметен. */
-    public const VIDEO_POSTER = '/uploads/site/promo-poster.jpg';
-
-    /**
-     * @var int Размеры кадра. Пиксель в файле неквадратный: кодируется 720×478,
-     * показывается как 722×478. По краям вшиты чёрные полосы, в экранных пикселях
-     * это по VIDEO_BAR с каждой стороны, поэтому видимая часть — 710×478.
-     * Те же числа заданы в site.css: там они задают пропорции рамки и сдвиг видео.
-     */
-    public const VIDEO_WIDTH = 710;
-    public const VIDEO_HEIGHT = 478;
-    public const VIDEO_BAR = 6;
+    public const VIDEOS = [
+        [
+            'webm' => '/uploads/site/promo.webm',
+            'mp4' => '/uploads/site/promo.mp4',
+            'poster' => '/uploads/site/promo-poster.jpg',
+            'width' => 1920,
+            'height' => 1080,
+            'crop_width' => null,
+            'crop_shift' => null,
+            'has_audio' => true,
+        ],
+        [
+            // Прежний ролик виллы: файл не менялся, взят как есть из предыдущей версии сайта.
+            'webm' => '/uploads/site/promo-2.webm',
+            'mp4' => '/uploads/site/promo-2.mp4',
+            'poster' => '/uploads/site/promo-2-poster.jpg',
+            'width' => 710,
+            'height' => 478,
+            'crop_width' => 722,
+            'crop_shift' => 6,
+            'has_audio' => true,
+        ],
+    ];
 
     /** @var string Картинка для превью ссылки в мессенджерах (Open Graph). */
     public const OG_IMAGE = '/uploads/site/og-image.jpg';
