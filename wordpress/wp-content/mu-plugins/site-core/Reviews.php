@@ -163,7 +163,7 @@ final class Reviews
             <div class="sc-review-card">
                 <?php echo Blocks::stars($rating); ?>
                 <p class="sc-review-text">&ldquo;<?php echo nl2br(esc_html(get_the_content())); ?>&rdquo;</p>
-                <div class="sc-review-author">&mdash; <?php echo esc_html(get_the_title()); ?></div>
+                <div class="sc-review-author">- <?php echo esc_html(get_the_title()); ?></div>
             </div>
             <?php
         }

@@ -78,7 +78,7 @@ final class Config
     public const PREMIUM_FEATURES = [
         ['title' => 'HOA Compliant Designs', 'text' => 'Our profiles, housings and color palette are specified to clear architectural review in West Boca\'s gated and country club communities. We prepare the submittal package and handle the approval process for you.'],
         ['title' => 'Integrated Dimmable Lights', 'text' => 'Built-in LED lighting with full dimming control turns the space into an evening room, with no fixtures to mount and no cords to run.'],
-        ['title' => 'Sunbrella&reg; Fabrics', 'text' => 'Solution-dyed acrylic that holds its color through Florida sun, salt air and afternoon storms — the fabric the industry measures itself against.'],
+        ['title' => 'Sunbrella&reg; Fabrics', 'text' => 'Solution-dyed acrylic that holds its color through Florida sun, salt air and afternoon storms - the fabric the industry measures itself against.'],
         ['title' => 'EZ-Pitch Adjustment', 'text' => 'Change the pitch of the awning on demand: steeper to shed a downpour, flatter to hold back low afternoon sun.'],
         ['title' => 'Premium Fit &amp; Finish', 'text' => 'Powder-coated frames, concealed fasteners and factory-matched hardware. Close up, it reads as part of the house, not as equipment bolted onto it.'],
         ['title' => '10-Year Standard Warranty*', 'text' => 'Ten years on the system as standard, backed by the factory rather than by a handshake. *Full terms provided with your written estimate.'],

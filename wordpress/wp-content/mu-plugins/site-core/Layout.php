@@ -68,7 +68,7 @@ final class Layout
     public static function renderTopBar(): void
     {
         ?>
-        <div class="sc-geo-badge">Serving West Boca Raton &amp; Exclusive Gated Communities &mdash; ZIP <?php echo esc_html(Config::zipList()); ?></div>
+        <div class="sc-geo-badge">Serving West Boca Raton &amp; Exclusive Gated Communities - ZIP <?php echo esc_html(Config::zipList()); ?></div>
         <div class="sc-header-actions">
             <a href="tel:<?php echo esc_attr(Config::PHONE_TEL); ?>" class="sc-header-phone">&#128222; <?php echo esc_html(Config::PHONE_DISPLAY); ?></a>
             <a href="#quote" class="sc-header-cta">Get a Free In-Home Estimate</a>
@@ -108,7 +108,7 @@ final class Layout
                 <iframe src="https://www.google.com/maps?q=West+Boca+Raton,FL&output=embed" height="280" class="sc-footer-map" loading="lazy" referrerpolicy="no-referrer-when-downgrade" title="<?php echo esc_attr(Config::BRAND); ?> service area map"></iframe>
                 <div class="sc-footer-zips">
                     <p class="sc-footer-status">We are the region&rsquo;s most experienced manufacturer and installer of remote-controlled motorized retractable roll screens and awnings.</p>
-                    <strong><?php echo esc_html(Config::BRAND); ?></strong> &mdash; Licensed &amp; Fully Insured | Serving West Boca Raton, FL and surrounding areas: ZIP codes <?php echo esc_html(Config::zipList()); ?>.<br>
+                    <strong><?php echo esc_html(Config::BRAND); ?></strong> - Licensed &amp; Fully Insured | Serving West Boca Raton, FL and surrounding areas: ZIP codes <?php echo esc_html(Config::zipList()); ?>.<br>
                     Call <a href="tel:<?php echo esc_attr(Config::PHONE_TEL); ?>" class="sc-footer-phone"><?php echo esc_html(Config::PHONE_DISPLAY); ?></a> for a Free In-Home Estimate.
                 </div>
             </div>

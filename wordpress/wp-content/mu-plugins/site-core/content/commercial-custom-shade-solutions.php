@@ -13,7 +13,7 @@ if (!defined('ABSPATH')) {
 
 // Компактный герой: на внутренних страницах он ниже, чем на главной.
 Blocks::renderHero(
-    'Commercial Custom Shade Solutions — Boca Raton, FL',
+    'Commercial Custom Shade Solutions - Boca Raton, FL',
     'Motorized shade and screen systems for restaurants, golf clubs, and commercial properties.'
 );
 ?>
@@ -29,7 +29,7 @@ Blocks::renderHero(
 
     [sc_trust_grid]
     [sc_trust title="Commercial-Grade Durability"]Engineered for daily high-traffic use at restaurants, clubs, and hotels.[/sc_trust]
-    [sc_trust title="Smart Wind Sensors"]Automatic retraction protects your system during storms — no staff intervention required.[/sc_trust]
+    [sc_trust title="Smart Wind Sensors"]Automatic retraction protects your system during storms - no staff intervention required.[/sc_trust]
     [sc_trust title="Licensed &amp; Insured"]Fully licensed by the State of Florida with complete liability coverage.[/sc_trust]
     [/sc_trust_grid]
 </div>
