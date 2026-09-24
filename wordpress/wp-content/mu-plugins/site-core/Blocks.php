@@ -172,18 +172,20 @@ final class Blocks
     }
 
     /**
-     * Короткая врезка о коммерческих объектах перед подвалом.
+     * Короткая врезка перед подвалом с предложением бесплатного замера для частного
+     * дома. Стоит на всех страницах, кроме коммерческой, — там свой оффер, и упоминать
+     * рестораны на страницах для домовладельцев только сбивает с толку.
      *
      * @return void
      */
-    public static function renderCommercialTeaser(): void
+    public static function renderResidentialTeaser(): void
     {
         ?>
-        <div class="sc-commercial">
-            <div class="sc-commercial-inner">
-                <h2>Commercial Shading Solutions</h2>
-                <p>We custom design and install heavy-duty motorized screens and awnings for West Boca restaurants, country clubs, and commercial outdoor dining spaces.</p>
-                <a href="/commercial-custom-shade-solutions/" class="sc-commercial-link">See commercial projects &rarr;</a>
+        <div class="sc-footer-teaser">
+            <div class="sc-footer-teaser-inner">
+                <h2>Free Measurement for Your Patio, Pool or Backyard</h2>
+                <p>Not sure where to start? Our design team measures your patio, pool cage, or backyard on-site and hands you an exact price - no obligation, no pressure.</p>
+                <a href="#quote" class="sc-footer-teaser-link">Get a Free Estimate &rarr;</a>
             </div>
         </div>
         <?php
@@ -198,7 +200,7 @@ final class Blocks
     {
         ?>
         <?php // Адреса файлов в data-атрибутах: <source> без src невалиден, а с src браузер начал бы качать сразу. ?>
-        <video id="sc-demo-video" class="sc-video-cropped" muted loop playsinline preload="none" poster="<?php echo esc_url(Config::assetUrl(Config::VIDEO_POSTER)); ?>"
+        <video id="sc-demo-video" muted loop playsinline preload="none" poster="<?php echo esc_url(Config::assetUrl(Config::VIDEO_POSTER)); ?>"
                data-webm="<?php echo esc_url(Config::assetUrl(Config::VIDEO_WEBM)); ?>"
                data-mp4="<?php echo esc_url(Config::assetUrl(Config::VIDEO_MP4)); ?>"
                width="<?php echo esc_attr((string) Config::VIDEO_WIDTH); ?>" height="<?php echo esc_attr((string) Config::VIDEO_HEIGHT); ?>"></video>

@@ -52,14 +52,11 @@ final class Config
     public const VIDEO_POSTER = '/uploads/site/promo-poster.jpg';
 
     /**
-     * @var int Размеры кадра. Пиксель в файле неквадратный: кодируется 720×478,
-     * показывается как 722×478. По краям вшиты чёрные полосы, в экранных пикселях
-     * это по VIDEO_BAR с каждой стороны, поэтому видимая часть — 710×478.
-     * Те же числа заданы в site.css: там они задают пропорции рамки и сдвиг видео.
+     * @var int Размеры кадра — чистые 16:9, без вшитых чёрных полос и без неквадратных
+     * пикселей, поэтому кадрировать нечего. Те же числа заданы в site.css для aspect-ratio.
      */
-    public const VIDEO_WIDTH = 710;
-    public const VIDEO_HEIGHT = 478;
-    public const VIDEO_BAR = 6;
+    public const VIDEO_WIDTH = 1920;
+    public const VIDEO_HEIGHT = 1080;
 
     /** @var string Картинка для превью ссылки в мессенджерах (Open Graph). */
     public const OG_IMAGE = '/uploads/site/og-image.jpg';

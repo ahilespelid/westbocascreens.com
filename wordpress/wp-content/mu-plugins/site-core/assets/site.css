@@ -31,7 +31,7 @@ body{background:#f7f9fa;}
 .sc-trust-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:24px;margin:36px 0;}
 .sc-trust-card{background:#fff;border:1px solid #e9ecee;border-radius:10px;padding:26px 24px;box-shadow:0 2px 10px rgba(20,40,50,.05);transition:box-shadow .2s ease,transform .2s ease;}
 .sc-trust-card:hover{box-shadow:0 10px 26px rgba(20,40,50,.12);transform:translateY(-3px);}
-.sc-trust-card h3{margin-top:0;color:#1b3a4b;font-size:1.1rem;}
+.sc-trust-card h3{margin-top:0;color:#1b3a4b;font-size:1.1rem;font-weight:700;}
 .sc-trust-card p{margin-bottom:0;color:#4a5960;}
 
 /* ---------- Вопрос-ответ ---------- */
@@ -54,16 +54,13 @@ body{background:#f7f9fa;}
 .sc-video-section{max-width:1000px;margin:64px auto;padding:0 24px;text-align:center;}
 .sc-video-wrap{position:relative;border-radius:12px;overflow:hidden;box-shadow:0 10px 40px rgba(20,40,50,.18);margin-top:28px;background:#0b1a22;}
 /*
- * Рамка плеера повторяет пропорции видимой части кадра (710×478 экранных пикселей;
- * пиксель в файле неквадратный, 720×478 кодируются как 722×478). Видео растянуто
- * абсолютным позиционированием на всю рамку, поэтому его размер не зависит ни от
- * заставки, ни от момента, когда подгрузятся метаданные, — вёрстка не дёргается.
- * Ширина 722/710 со сдвигом влево на 6/710 уводит вшитые чёрные полосы за края,
- * а overflow:hidden у рамки их срезает. Числа те же, что в константах VIDEO_* Config.
+ * Рамка плеера повторяет пропорции ролика (16:9, числа те же, что в VIDEO_WIDTH/
+ * VIDEO_HEIGHT в Config). Видео растянуто абсолютным позиционированием на всю рамку,
+ * поэтому его размер не зависит ни от заставки, ни от момента, когда подгрузятся
+ * метаданные, — вёрстка не дёргается.
  */
-.sc-video-wrap{aspect-ratio:710/478;}
+.sc-video-wrap{aspect-ratio:1920/1080;}
 .sc-video-wrap video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block;}
-.sc-video-wrap video.sc-video-cropped{width:calc(100% * 722 / 710);max-width:none;left:calc(-100% * 6 / 710);}
 /* Кнопка звука по центру снизу: на любой сцене видна, белая обводка отделяет её от тёмного кадра. */
 .sc-sound-toggle{position:absolute;left:50%;bottom:16px;transform:translateX(-50%);width:52px;height:52px;border-radius:50%;background:rgba(19,39,52,.8);color:#fff;border:2px solid rgba(255,255,255,.85);font-size:1.4rem;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 14px rgba(0,0,0,.35);-webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px);}
 .sc-sound-toggle:hover{background:rgba(19,39,52,.95);}
@@ -155,14 +152,14 @@ body{background:#f7f9fa;}
 .sc-testimonial-name{color:#1b3a4b;font-weight:700;}
 .sc-testimonial-place{color:#5a6b76;font-size:.9rem;}
 
-/* ---------- Врезка о коммерческих объектах перед подвалом ---------- */
-.sc-commercial{background:#e9f0f3;padding:48px 24px;margin-top:64px;}
-.sc-commercial-inner{max-width:800px;margin:0 auto;text-align:center;}
-.sc-commercial-inner h2{color:#1b3a4b;font-size:1.7rem;line-height:1.25;margin:0 0 12px;}
-.sc-commercial-inner p{color:#4a5960;margin:0 0 16px;}
-.sc-commercial-link{color:#c0392b;font-weight:700;text-decoration:none;}
+/* ---------- Врезка с оффером для частных домовладельцев перед подвалом ---------- */
+.sc-footer-teaser{background:#e9f0f3;padding:48px 24px;margin-top:64px;}
+.sc-footer-teaser-inner{max-width:800px;margin:0 auto;text-align:center;}
+.sc-footer-teaser-inner h2{color:#1b3a4b;font-size:1.7rem;line-height:1.25;margin:0 0 12px;}
+.sc-footer-teaser-inner p{color:#4a5960;margin:0 0 16px;}
+.sc-footer-teaser-link{color:#c0392b;font-weight:700;text-decoration:none;}
 /* Врезка сама даёт отступ сверху, поэтому у подвала сразу за ней свой убираем. */
-.sc-commercial + .sc-footer{margin-top:0;}
+.sc-footer-teaser + .sc-footer{margin-top:0;}
 
 /* ---------- Мобильные: заголовки не наезжают друг на друга и на номера шагов ---------- */
 @media (max-width:782px){
