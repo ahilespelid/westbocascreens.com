@@ -81,8 +81,8 @@ final class Migration
             self::scrubStrings(self::LONG_DASH, array_keys(self::LONG_DASH));
         }
         if ($current_version < 5) {
-            // Новый ролик в блоке видео: обновлённая разметка (без класса обрезки
-            // чёрных полос, другие width/height) должна попасть и в снимок в базе.
+            // Блок видео перестроен под несколько роликов (новая разметка,
+            // другие width/height) — обновлённый снимок должен попасть в базу.
             self::syncPagesFromFiles();
         }
 

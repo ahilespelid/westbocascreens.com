@@ -1,30 +1,30 @@
 /*
- * Демо-видео на главной: грузится только когда посетитель доскроллил до него,
- * поэтому не тормозит первую отрисовку. Стартует без звука — браузеры запрещают
- * автовоспроизведение со звуком, — и включает звук по первому клику посетителя.
+ * Демо-видео на главной: в блоке их может быть несколько (сейчас два, один за другим),
+ * каждое грузится только когда посетитель доскроллил до него, поэтому не тормозит
+ * первую отрисовку. Стартуют без звука — браузеры запрещают автовоспроизведение
+ * со звуком, — и включают звук по первому клику посетителя.
  */
 (function () {
-    // Видео на странице одно; нет его — скрипт молча завершается.
-    var video = document.getElementById('sc-demo-video');
-    if (!video) {
+    // Видео на странице может не быть вовсе — тогда скрипту нечего делать.
+    var videos = document.querySelectorAll('.sc-demo-video');
+    if (!videos.length) {
         return;
     }
 
-    // Кнопка включения и выключения звука поверх видео.
-    var toggle = document.querySelector('.sc-sound-toggle');
-
-    // Флаг, чтобы источники подставлялись ровно один раз.
-    var loaded = false;
+    // Источники каждого видео подставляются ровно один раз.
+    var loadedVideos = [];
 
     /**
-     * Подставляет реальные адреса файлов и запускает воспроизведение.
+     * Подставляет реальные адреса файлов конкретного видео и запускает воспроизведение.
+     *
+     * @param {HTMLVideoElement} video Элемент, для которого пора грузить источники.
      */
-    function loadVideo() {
-        // Повторный вызов из другого обработчика ничего не делает.
-        if (loaded) {
+    function loadVideo(video) {
+        // Повторный вызов для того же элемента ничего не делает.
+        if (loadedVideos.indexOf(video) !== -1) {
             return;
         }
-        loaded = true;
+        loadedVideos.push(video);
 
         // Источники создаём только сейчас: до этого адреса лежат в data-атрибутах,
         // чтобы браузер не начинал качать видео заранее. webm первым — он легче.
@@ -42,41 +42,50 @@
         video.play().catch(function () {});
     }
 
-    // Загрузка по факту появления видео в зоне видимости с запасом в 200 пикселей.
+    // Загрузка каждого видео по факту его появления в зоне видимости с запасом в 200 пикселей.
     if ('IntersectionObserver' in window) {
         var observer = new IntersectionObserver(function (entries) {
             entries.forEach(function (entry) {
                 if (entry.isIntersecting) {
-                    loadVideo();
-                    observer.unobserve(video);
+                    loadVideo(entry.target);
+                    observer.unobserve(entry.target);
                 }
             });
         }, { rootMargin: '200px' });
-        observer.observe(video);
+        videos.forEach(function (video) {
+            observer.observe(video);
+        });
     } else {
-        // Старый браузер без IntersectionObserver — грузим сразу, лучше так, чем никак.
-        loadVideo();
+        // Старый браузер без IntersectionObserver — грузим всё сразу, лучше так, чем никак.
+        videos.forEach(loadVideo);
     }
 
-    // Кнопка переключает звук и меняет иконку на противоположную.
-    if (toggle) {
+    // У каждого видео своя кнопка звука — ищем её в той же рамке, а не по общему селектору.
+    document.querySelectorAll('.sc-video-wrap').forEach(function (wrap) {
+        var video = wrap.querySelector('.sc-demo-video');
+        var toggle = wrap.querySelector('.sc-sound-toggle');
+        if (!video || !toggle) {
+            return;
+        }
         toggle.addEventListener('click', function (event) {
             // stopPropagation, иначе этот же клик поймает обработчик «включить звук» ниже.
             event.stopPropagation();
             video.muted = !video.muted;
             toggle.innerHTML = video.muted ? '&#128264;' : '&#128266;';
         });
-    }
+    });
 
     // Первый клик в любом месте страницы — это тот самый жест пользователя,
-    // после которого браузер разрешает звук.
+    // после которого браузер разрешает звук. Включаем сразу у всех видео со звуком.
     document.addEventListener('click', function () {
-        if (video.muted) {
-            video.muted = false;
-            if (toggle) {
+        document.querySelectorAll('.sc-video-wrap').forEach(function (wrap) {
+            var video = wrap.querySelector('.sc-demo-video');
+            var toggle = wrap.querySelector('.sc-sound-toggle');
+            if (video && toggle && video.muted) {
+                video.muted = false;
                 toggle.innerHTML = '&#128266;';
             }
-        }
+        });
     }, { once: true });
 })();
 

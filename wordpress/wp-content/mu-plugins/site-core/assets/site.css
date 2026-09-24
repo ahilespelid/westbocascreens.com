@@ -52,15 +52,24 @@ body{background:#f7f9fa;}
 
 /* ---------- Демо-видео на главной ---------- */
 .sc-video-section{max-width:1000px;margin:64px auto;padding:0 24px;text-align:center;}
-.sc-video-wrap{position:relative;border-radius:12px;overflow:hidden;box-shadow:0 10px 40px rgba(20,40,50,.18);margin-top:28px;background:#0b1a22;}
+/* Ролики один под другим: их может быть один или несколько, gap задаёт отступ между ними и от подписи блока. */
+.sc-video-grid{display:flex;flex-direction:column;gap:32px;margin-top:28px;}
+.sc-video-wrap{position:relative;border-radius:12px;overflow:hidden;box-shadow:0 10px 40px rgba(20,40,50,.18);background:#0b1a22;}
 /*
- * Рамка плеера повторяет пропорции ролика (16:9, числа те же, что в VIDEO_WIDTH/
- * VIDEO_HEIGHT в Config). Видео растянуто абсолютным позиционированием на всю рамку,
- * поэтому его размер не зависит ни от заставки, ни от момента, когда подгрузятся
- * метаданные, — вёрстка не дёргается.
+ * Аспект рамки — переменная CSS --video-ratio, её задаёт style каждого блока
+ * (Blocks::renderSelfHostedVideo), поэтому разные ролики могут иметь разные пропорции.
+ * Видео растянуто абсолютным позиционированием на всю рамку, поэтому его размер не
+ * зависит ни от заставки, ни от момента, когда подгрузятся метаданные, — вёрстка
+ * не дёргается.
  */
-.sc-video-wrap{aspect-ratio:1920/1080;}
+.sc-video-wrap{aspect-ratio:var(--video-ratio);}
 .sc-video-wrap video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block;}
+/*
+ * Обрезка вшитых чёрных полос — только у роликов с классом sc-video-cropped
+ * (crop_width в Config::VIDEOS). --crop-width/--crop-shift и --video-width —
+ * тоже переменные из style рамки; overflow:hidden у неё же срезает лишнее.
+ */
+.sc-video-wrap video.sc-video-cropped{width:calc(100% * var(--crop-width) / var(--video-width));max-width:none;left:calc(-100% * var(--crop-shift) / var(--video-width));}
 /* Кнопка звука по центру снизу: на любой сцене видна, белая обводка отделяет её от тёмного кадра. */
 .sc-sound-toggle{position:absolute;left:50%;bottom:16px;transform:translateX(-50%);width:52px;height:52px;border-radius:50%;background:rgba(19,39,52,.8);color:#fff;border:2px solid rgba(255,255,255,.85);font-size:1.4rem;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 14px rgba(0,0,0,.35);-webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px);}
 .sc-sound-toggle:hover{background:rgba(19,39,52,.95);}
