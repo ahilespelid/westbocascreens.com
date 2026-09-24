@@ -29,8 +29,14 @@ final class Migration
         'Apex Flow' => Config::BRAND,
     ];
 
+    /**
+     * @var array<string, string> Длинные тире и их замена. На сайте принят обычный дефис:
+     * так текст одинаково выглядит в любом шрифте и не зависит от кодировки.
+     */
+    private const LONG_DASH = ['&mdash;' => '-', '&ndash;' => '-', '—' => '-', '–' => '-'];
+
     /** @var int Номер миграции, до которой должна быть доведена база. */
-    private const VERSION = 3;
+    private const VERSION = 4;
 
     /**
      * Подписка на хуки модуля.
@@ -68,7 +74,11 @@ final class Migration
         }
         if ($current_version < 3) {
             self::purgePageRevisions();
-            self::scrubOldBrand();
+            self::scrubStrings(self::OLD_BRAND, ['Apex Flow']);
+        }
+        if ($current_version < 4) {
+            self::syncPagesFromFiles();
+            self::scrubStrings(self::LONG_DASH, array_keys(self::LONG_DASH));
         }
 
         // Номер пишем после успеха; autoload — чтобы проверка выше не ходила в базу.
@@ -96,19 +106,36 @@ final class Migration
     }
 
     /**
-     * Миграция 3, часть 2: страховочная замена старого бренда по всей базе — в записях
-     * любых типов, их мета-полях и настройках. Сериализованные значения идут через API
-     * WordPress: SQL REPLACE поменял бы длину строки и сломал сериализацию.
+     * Замена текста по всей базе: в записях любых типов, их мета-полях и настройках.
+     * Сериализованные значения идут через API WordPress: SQL REPLACE поменял бы длину
+     * строки и сломал сериализацию.
      *
+     * @param array<string, string> $map Что на что менять.
+     * @param string[] $needles Подстроки для поиска строк-кандидатов в базе.
      * @return void
      */
-    private static function scrubOldBrand(): void
+    private static function scrubStrings(array $map, array $needles): void
     {
         // Объект доступа к базе WordPress с уже подставленными префиксами таблиц.
         global $wpdb;
 
-        // Шаблон LIKE для поиска: общая часть всех старых вариантов.
-        $like = '%' . $wpdb->esc_like('Apex Flow') . '%';
+        // По одному проходу на подстроку: проще одного запроса с OR и так же идемпотентно.
+        foreach ($needles as $needle) {
+            self::scrubByNeedle($map, '%' . $wpdb->esc_like($needle) . '%');
+        }
+    }
+
+    /**
+     * Один проход замены по строкам базы, содержащим заданную подстроку.
+     *
+     * @param array<string, string> $map Что на что менять.
+     * @param string $like Готовый шаблон LIKE.
+     * @return void
+     */
+    private static function scrubByNeedle(array $map, string $like): void
+    {
+        // Объект доступа к базе WordPress с уже подставленными префиксами таблиц.
+        global $wpdb;
 
         // Текстовые поля записей: сериализации там нет, поэтому строковая замена безопасна.
         $post_rows = $wpdb->get_results($wpdb->prepare(
@@ -120,7 +147,7 @@ final class Migration
         foreach ($post_rows as $post_row) {
             // ID отделяем, остальное — поля для замены.
             $post_id = (int) array_shift($post_row);
-            $wpdb->update($wpdb->posts, self::replaceOldBrand($post_row), ['ID' => $post_id]);
+            $wpdb->update($wpdb->posts, self::replaceStrings($post_row, $map), ['ID' => $post_id]);
             clean_post_cache($post_id);
         }
 
@@ -132,7 +159,7 @@ final class Migration
         foreach ($meta_rows as $meta_row) {
             // Каждое значение ключа — отдельно: у одного ключа их может быть несколько.
             foreach (get_post_meta((int) $meta_row->post_id, $meta_row->meta_key) as $meta_value) {
-                update_post_meta((int) $meta_row->post_id, $meta_row->meta_key, self::replaceOldBrand($meta_value), $meta_value);
+                update_post_meta((int) $meta_row->post_id, $meta_row->meta_key, self::replaceStrings($meta_value, $map), $meta_value);
             }
         }
 
@@ -142,32 +169,33 @@ final class Migration
             $like
         ));
         foreach ($option_names as $option_name) {
-            update_option($option_name, self::replaceOldBrand(get_option($option_name)));
+            update_option($option_name, self::replaceStrings(get_option($option_name), $map));
         }
     }
 
     /**
-     * Заменяет старый бренд в строке или рекурсивно во всех строках массива/объекта.
+     * Применяет карту замен к строке или рекурсивно ко всем строкам массива/объекта.
      *
      * @param mixed $value Значение любого типа.
+     * @param array<string, string> $map Что на что менять.
      * @return mixed То же значение с заменой; нестроковые скаляры — без изменений.
      */
-    private static function replaceOldBrand(mixed $value): mixed
+    private static function replaceStrings(mixed $value, array $map): mixed
     {
         // Строка — основной случай: str_replace с массивами применяет пары по порядку.
         if (is_string($value)) {
-            return str_replace(array_keys(self::OLD_BRAND), array_values(self::OLD_BRAND), $value);
+            return str_replace(array_keys($map), array_values($map), $value);
         }
 
         // Массив — рекурсивно по всем элементам с сохранением ключей.
         if (is_array($value)) {
-            return array_map([self::class, 'replaceOldBrand'], $value);
+            return array_map(static fn (mixed $item): mixed => self::replaceStrings($item, $map), $value);
         }
 
         // Объект — по публичным свойствам; сам объект остаётся тем же экземпляром.
         if (is_object($value)) {
             foreach (get_object_vars($value) as $property => $property_value) {
-                $value->$property = self::replaceOldBrand($property_value);
+                $value->$property = self::replaceStrings($property_value, $map);
             }
         }
 
@@ -196,8 +224,30 @@ final class Migration
         // Сбрасываем кэш опций, иначе до конца запроса WordPress держал бы в памяти старое.
         wp_cache_delete('alloptions', 'options');
 
-        // Текст каждой страницы с файлом разметки — снимок этого файла. Шорткоды остаются
-        // шорткодами: формы, nonce и списки отзывов собираются в момент показа, не здесь.
+        // Снимок текстов страниц из файлов.
+        self::syncPagesFromFiles();
+
+        // Старое имя в SEO-мета страниц: код их перекрывает, но в базе им тоже не место.
+        $wpdb->query($wpdb->prepare(
+            "UPDATE {$wpdb->postmeta} SET meta_value = REPLACE(meta_value, %s, %s) WHERE meta_key IN ('_sc_meta_title', '_sc_meta_description', '_sc_service_name')",
+            'Wow Apex Flow',
+            Config::BRAND
+        ));
+    }
+
+    /**
+     * Переписывает текст страниц в базе снимком их файлов разметки. Сайт и так
+     * показывает страницы из файлов, но копия в базе уходит в бэкапы и в админку,
+     * поэтому она не должна отставать. Шорткоды остаются шорткодами: формы, nonce
+     * и списки отзывов собираются в момент показа, не здесь.
+     *
+     * @return void
+     */
+    private static function syncPagesFromFiles(): void
+    {
+        // Объект доступа к базе WordPress с уже подставленными префиксами таблиц.
+        global $wpdb;
+
         foreach (Content::slugs() as $slug) {
             // Страница с таким слагом; в базе её может и не быть — тогда писать некуда.
             $page = get_page_by_path($slug, OBJECT, 'page');
@@ -211,13 +261,6 @@ final class Migration
             // Кэш объекта записи — чтобы следующее чтение увидело новый текст.
             clean_post_cache($page->ID);
         }
-
-        // Старое имя в SEO-мета страниц: код их перекрывает, но в базе им тоже не место.
-        $wpdb->query($wpdb->prepare(
-            "UPDATE {$wpdb->postmeta} SET meta_value = REPLACE(meta_value, %s, %s) WHERE meta_key IN ('_sc_meta_title', '_sc_meta_description', '_sc_service_name')",
-            'Wow Apex Flow',
-            Config::BRAND
-        ));
     }
 
     /**

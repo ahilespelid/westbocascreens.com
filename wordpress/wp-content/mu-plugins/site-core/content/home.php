@@ -22,7 +22,7 @@ $testimonials = [
 // Полноразмерный герой с кнопкой: единственная страница, где он такой.
 Blocks::renderHero(
     'Premium Motorized Screens & Retractable Awnings in West Boca Raton, FL',
-    'Turn your outdoor living space into the room you never want to leave — an all-weather retreat that shuts out sun, storms, and mosquitoes at the touch of a button.',
+    'Turn your outdoor living space into the room you never want to leave - an all-weather retreat that shuts out sun, storms, and mosquitoes at the touch of a button.',
     false,
     'Get a Free In-Home Estimate'
 );
@@ -38,7 +38,7 @@ Blocks::renderMediaSplit(
 // Видео: ролик YouTube из конфигурации или, пока он не выбран, собственное видео.
 Blocks::renderVideo(
     'See It In Action',
-    'Watch motorized retractable screens and awnings transform an outdoor living space in seconds — rain, wind, or shine.'
+    'Watch motorized retractable screens and awnings transform an outdoor living space in seconds - rain, wind, or shine.'
 );
 ?>
 
@@ -63,10 +63,10 @@ Blocks::renderVideo(
     <p class="sc-section-lede">Because "good enough" doesn't survive hurricane season.</p>
     [sc_trust_grid]
     [sc_trust title="All-Weather &amp; Rain Protection"]Motorized panels create a sealed barrier that blocks up to 90% of driving rain and wind during tropical storms, keeping your furniture, TVs, and outdoor living space dry and mold-free.[/sc_trust]
-    [sc_trust title="Smart Home &amp; Alexa Integration"]One touch from your remote, phone, or voice — "Alexa, close the screens" — and your outdoor room seals itself up.[/sc_trust]
+    [sc_trust title="Smart Home &amp; Alexa Integration"]One touch from your remote, phone, or voice - "Alexa, close the screens" - and your outdoor room seals itself up.[/sc_trust]
     [sc_trust title="Smart Wind Sensors"]Built-in sensors auto-retract your awning the moment storm-force winds hit. The #1 worry for Florida homeowners, handled while you're not even home.[/sc_trust]
     [sc_trust title="UV Ray &amp; Insect Barrier"]Real shade from Florida's brutal sun, and a mosquito- and no-see-um-free zone your family will actually want to spend evenings in.[/sc_trust]
-    [sc_trust title="Hurricane-Resistant Engineering"]Heavy-duty aluminum frames engineered to meet Florida's strict hurricane building codes — built to outlast the storm, not just survive it.[/sc_trust]
+    [sc_trust title="Hurricane-Resistant Engineering"]Heavy-duty aluminum frames engineered to meet Florida's strict hurricane building codes - built to outlast the storm, not just survive it.[/sc_trust]
     [sc_trust title="Licensed &amp; Fully Insured"]Fully licensed by the State of Florida and fully insured, so every install is backed by real accountability, not just a handshake.[/sc_trust]
     [/sc_trust_grid]
 </div>
@@ -102,5 +102,5 @@ Blocks::renderVideo(
 // Финальный призыв к действию: единственный блок с якорем #quote, на него ведут кнопки шапки и героя.
 Blocks::renderCtaBand(
     'Your Outdoor Living Space Could Be Ready Before the Next Storm Rolls In',
-    'Free in-home estimate. No obligation, no pressure — just a real plan for your space.'
+    'Free in-home estimate. No obligation, no pressure - just a real plan for your space.'
 );
