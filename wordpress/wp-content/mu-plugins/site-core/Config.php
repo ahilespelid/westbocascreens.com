@@ -42,7 +42,7 @@ final class Config
     public const AWNING_IMAGE = '/uploads/site/awning-feature.jpg';
 
     /**
-     * @var array<int, array{webm: string, mp4: string, poster: string, width: int, height: int, crop_width: int|null, crop_shift: int|null, has_audio: bool}>
+     * @var array<int, array{webm: string, mp4: string, poster: string, width: int, height: int, crop_width: int|null, crop_shift: int|null, autoplay: bool}>
      * Ролики блока «See It In Action» по порядку показа. Каждый — два файла с одним
      * контентом (webm понимают все современные браузеры, mp4 — для старых Safari и iOS)
      * плюс заставка первым кадром, чтобы старт был незаметен.
@@ -52,7 +52,11 @@ final class Config
      * неквадратный): это ширина кадра БЕЗ обрезки и сдвиг влево в тех же единицах,
      * что и width, — вместе они уводят полосы за рамку с overflow:hidden.
      *
-     * has_audio включает кнопку звука.
+     * autoplay: true — ролик грузится и стартует сам, как только доскроллили до него
+     * (свой сценарий на каждый такой ролик, звук выключен, пока посетитель не кликнет).
+     * false — ролик ждёт клика: нативные controls, свой звук не включается сам и не
+     * накладывается на другие. Автозапуск оставлен только у одного ролика намеренно:
+     * если играют оба сразу, при первом клике посетителя звук включается у всех разом.
      */
     public const VIDEOS = [
         [
@@ -63,7 +67,7 @@ final class Config
             'height' => 1080,
             'crop_width' => null,
             'crop_shift' => null,
-            'has_audio' => true,
+            'autoplay' => true,
         ],
         [
             // Прежний ролик виллы: файл не менялся, взят как есть из предыдущей версии сайта.
@@ -74,7 +78,7 @@ final class Config
             'height' => 478,
             'crop_width' => 722,
             'crop_shift' => 6,
-            'has_audio' => true,
+            'autoplay' => false,
         ],
     ];
 
