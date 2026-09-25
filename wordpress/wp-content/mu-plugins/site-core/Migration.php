@@ -36,7 +36,7 @@ final class Migration
     private const LONG_DASH = ['&mdash;' => '-', '&ndash;' => '-', '—' => '-', '–' => '-'];
 
     /** @var int Номер миграции, до которой должна быть доведена база. */
-    private const VERSION = 7;
+    private const VERSION = 8;
 
     /**
      * Подписка на хуки модуля.
@@ -93,6 +93,12 @@ final class Migration
         if ($current_version < 7) {
             // Автозапуск у ролика виллы наверху выключен: играет только по клику
             // посетителя, автозапуск остался только у ролика в «See It In Action».
+            self::syncPagesFromFiles();
+        }
+        if ($current_version < 8) {
+            // Автозапуск у ролика виллы включён обратно: теперь оба ролика на странице
+            // играют со звуком по очереди - тот, что в зоне видимости, остальные на паузе
+            // (логика в video.js), плюс на страницу добавлено фото навеса.
             self::syncPagesFromFiles();
         }
 

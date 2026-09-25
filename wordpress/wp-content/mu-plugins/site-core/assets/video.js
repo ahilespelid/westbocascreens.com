@@ -1,9 +1,14 @@
 /*
- * Демо-видео на главной: их может быть несколько, в разных секциях страницы,
- * каждое грузится только когда посетитель доскроллил до него, поэтому не тормозит
- * первую отрисовку. Стартуют без звука — браузеры запрещают автовоспроизведение
- * со звуком, — и звук включает только кнопка своего ролика, чтобы несколько
- * автозапускаемых видео не заиграли одновременно.
+ * Демо-видео на главной: их может быть несколько, в разных секциях страницы.
+ * Играет всегда только одно — то, что сейчас в зоне видимости, — и играет со
+ * звуком; остальные при этом стоят на паузе. Как только посетитель доскроллил
+ * до следующего ролика, предыдущий останавливается, а новый подхватывает.
+ *
+ * Со звуком автовоспроизведение разрешает не любой браузер, а только после
+ * того, как посетитель хоть раз что-то нажал на странице (правило браузеров,
+ * не наше). До первого клика/тапа ролики поэтому стартуют без звука — иначе
+ * play() браузер просто отклонит и видео не запустится вовсе, — а как только
+ * жест случился, у текущего видимого ролика звук включается сам.
  */
 (function () {
     // Видео на странице может не быть вовсе — тогда скрипту нечего делать.
@@ -15,10 +20,19 @@
     // Источники каждого видео подставляются ровно один раз.
     var loadedVideos = [];
 
+    // Ролик, который сейчас играет; null - пока ни один не попал в зону видимости.
+    var activeVideo = null;
+
+    // true после первого клика/тапа/нажатия клавиши где угодно на странице -
+    // с этого момента браузер разрешает запускать видео со звуком через JS.
+    var userGestureHappened = false;
+
     /**
-     * Подставляет реальные адреса файлов конкретного видео и запускает воспроизведение.
+     * Подставляет реальные адреса файлов конкретного видео. До вызова адреса
+     * лежат в data-атрибутах, чтобы браузер не начинал качать видео заранее.
      *
      * @param {HTMLVideoElement} video Элемент, для которого пора грузить источники.
+     * @return void
      */
     function loadVideo(video) {
         // Повторный вызов для того же элемента ничего не делает.
@@ -27,8 +41,7 @@
         }
         loadedVideos.push(video);
 
-        // Источники создаём только сейчас: до этого адреса лежат в data-атрибутах,
-        // чтобы браузер не начинал качать видео заранее. webm первым — он легче.
+        // webm первым - он легче, браузер сам выберет первый поддерживаемый формат.
         [['webm', 'video/webm'], ['mp4', 'video/mp4']].forEach(function (format) {
             var source = document.createElement('source');
             source.src = video.getAttribute('data-' + format[0]);
@@ -38,34 +51,117 @@
 
         // load() заставляет видео перечитать источники после подстановки адресов.
         video.load();
+    }
 
-        // play() возвращает промис; отказ браузера — нормальная ситуация, гасим его.
+    /**
+     * Обновляет иконку кнопки звука под текущее состояние конкретного видео.
+     *
+     * @param {HTMLVideoElement} video Ролик, у которого проверяем video.muted.
+     * @return void
+     */
+    function updateSoundIcon(video) {
+        var wrap = video.closest('.sc-video-wrap');
+        var toggle = wrap && wrap.querySelector('.sc-sound-toggle');
+        if (toggle) {
+            toggle.innerHTML = video.muted ? '&#128264;' : '&#128266;';
+        }
+    }
+
+    /**
+     * Ролик попал в зону видимости: останавливает предыдущий активный (если был)
+     * и запускает этот - со звуком, если посетитель уже где-то кликнул, иначе
+     * без звука до первого клика.
+     *
+     * @param {HTMLVideoElement} video Ролик, который нужно сделать активным.
+     * @return void
+     */
+    function activate(video) {
+        if (activeVideo === video) {
+            return;
+        }
+        if (activeVideo) {
+            activeVideo.pause();
+        }
+        activeVideo = video;
+
+        // Источники могли ещё не подгрузиться, если оба observer'а сработали не по порядку.
+        loadVideo(video);
+
+        video.muted = !userGestureHappened;
+        updateSoundIcon(video);
+
+        // play() возвращает промис; отказ браузера - нормальная ситуация, гасим его.
         video.play().catch(function () {});
     }
 
-    // Загрузка каждого видео по факту его появления в зоне видимости с запасом в 200 пикселей.
+    /**
+     * Ролик ушёл из зоны видимости: если он был активным, ставим на паузу.
+     *
+     * @param {HTMLVideoElement} video Ролик, который перестал быть виден.
+     * @return void
+     */
+    function deactivate(video) {
+        if (activeVideo !== video) {
+            return;
+        }
+        video.pause();
+        activeVideo = null;
+    }
+
     if ('IntersectionObserver' in window) {
-        var observer = new IntersectionObserver(function (entries) {
+        // Ранняя подгрузка источников с запасом в 200 пикселей - к моменту, когда
+        // ролик реально станет видимым, он уже готов играть без задержки.
+        var loadObserver = new IntersectionObserver(function (entries) {
             entries.forEach(function (entry) {
                 if (entry.isIntersecting) {
                     loadVideo(entry.target);
-                    observer.unobserve(entry.target);
+                    loadObserver.unobserve(entry.target);
                 }
             });
         }, { rootMargin: '200px' });
+
+        // Запуск и пауза - только когда ролик действительно на виду (60% кадра).
+        var playObserver = new IntersectionObserver(function (entries) {
+            entries.forEach(function (entry) {
+                if (entry.isIntersecting) {
+                    activate(entry.target);
+                } else {
+                    deactivate(entry.target);
+                }
+            });
+        }, { threshold: 0.6 });
+
         videos.forEach(function (video) {
-            observer.observe(video);
+            loadObserver.observe(video);
+            playObserver.observe(video);
         });
     } else {
-        // Старый браузер без IntersectionObserver — грузим всё сразу, лучше так, чем никак.
-        videos.forEach(loadVideo);
+        // Старый браузер без IntersectionObserver - грузим и запускаем без звука, лучше так, чем никак.
+        videos.forEach(function (video) {
+            loadVideo(video);
+            video.muted = true;
+            video.play().catch(function () {});
+        });
     }
 
-    // У каждого видео своя кнопка звука — ищем её в той же рамке, а не по общему селектору.
-    // Звук включает только сама кнопка своего ролика: страница может показывать несколько
-    // автозапускаемых роликов в разных секциях одновременно (например, видео виллы наверху
-    // и видео сеток в середине), и глобальное «включить звук у всех по первому клику где
-    // угодно» раньше приводило к тому, что оба играли со звуком одновременно вперемешку.
+    // Первый клик/тап/нажатие клавиши где угодно на странице - тот самый жест,
+    // после которого браузер разрешает звук. Включаем его у текущего видимого ролика.
+    function onFirstGesture() {
+        if (userGestureHappened) {
+            return;
+        }
+        userGestureHappened = true;
+        if (activeVideo && activeVideo.muted) {
+            activeVideo.muted = false;
+            updateSoundIcon(activeVideo);
+        }
+    }
+    ['click', 'touchstart', 'keydown'].forEach(function (eventName) {
+        document.addEventListener(eventName, onFirstGesture, { once: true });
+    });
+
+    // Кнопка звука у каждого ролика - ручной переключатель поверх автоматики,
+    // на случай если посетитель хочет приглушить звук у текущего видимого видео.
     document.querySelectorAll('.sc-video-wrap').forEach(function (wrap) {
         var video = wrap.querySelector('.sc-demo-video');
         var toggle = wrap.querySelector('.sc-sound-toggle');
@@ -73,10 +169,11 @@
             return;
         }
         toggle.addEventListener('click', function (event) {
-            // stopPropagation на случай будущих общих обработчиков клика на странице.
+            // stopPropagation, иначе тот же клик поймает обработчик первого жеста выше.
             event.stopPropagation();
+            userGestureHappened = true;
             video.muted = !video.muted;
-            toggle.innerHTML = video.muted ? '&#128264;' : '&#128266;';
+            updateSoundIcon(video);
         });
     });
 })();
