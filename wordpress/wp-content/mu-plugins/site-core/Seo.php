@@ -72,7 +72,10 @@ final class Seo
      */
     public static function register(): void
     {
-        // Приоритет 1 — description идёт первым в <head>, до всего прочего.
+        // Приоритет 0 — метатег подтверждения Google Search Console раньше всего прочего.
+        add_action('wp_head', [self::class, 'renderGoogleSiteVerification'], 0);
+
+        // Приоритет 1 — description идёт следом, до всего остального.
         add_action('wp_head', [self::class, 'renderDescription'], 1);
 
         // Приоритет 2 — сразу следом карточки для соцсетей и мессенджеров.
@@ -80,6 +83,23 @@ final class Seo
 
         // Заголовок вкладки: собственный, если он задан для этой страницы.
         add_filter('document_title_parts', [self::class, 'filterTitle']);
+    }
+
+    /**
+     * Метатег подтверждения владения сайтом в Google Search Console. Выводится
+     * на каждой странице сайта, а не только на главной, — так надёжнее: Google
+     * проверяет тег там, куда его собственный краулер зашёл в момент проверки.
+     *
+     * @return void
+     */
+    public static function renderGoogleSiteVerification(): void
+    {
+        // Токен не задан — тег не печатаем вовсе, чтобы не оставлять пустой атрибут.
+        if (Config::GOOGLE_SITE_VERIFICATION === '') {
+            return;
+        }
+
+        echo '<meta name="google-site-verification" content="' . esc_attr(Config::GOOGLE_SITE_VERIFICATION) . '">' . "\n";
     }
 
     /**
