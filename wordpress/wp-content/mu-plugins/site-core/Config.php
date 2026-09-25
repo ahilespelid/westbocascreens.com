@@ -101,6 +101,14 @@ final class Config
     public const YOUTUBE_ID = '';
 
     /**
+     * @var string Токен подтверждения владения сайтом в Google Search Console
+     * (способ «HTML-тег»). Пустая строка — метатег не выводится. Нельзя убирать
+     * или менять после того, как подтверждение прошло успешно: Google перестанет
+     * видеть доступ владельца к сайту, пока тег не появится снова.
+     */
+    public const GOOGLE_SITE_VERIFICATION = 'jn4HGSDILXAigZlruvhe4XynzlY500Spo2wjB8Ibz5o';
+
+    /**
      * @var array<int, array{title: string, text: string}> Преимущества систем.
      * Один список на весь сайт: используется и на главной, и на страницах услуг.
      */
