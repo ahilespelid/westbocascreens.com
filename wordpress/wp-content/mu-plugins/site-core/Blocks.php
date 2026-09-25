@@ -66,13 +66,18 @@ final class Blocks
      * Демонстрационное видео. Если в конфигурации задан ролик YouTube, выводится
      * его превью-заглушка: тяжёлый плеер подгружается только по клику, поэтому
      * скорость первой отрисовки не страдает. Пока ролик не выбран — один за другим
-     * играют собственные видео из uploads, их список задаёт Config::VIDEOS.
+     * играют собственные видео из uploads.
+     *
+     * Метод общий для всех видеосекций страницы (их может быть несколько в разных
+     * местах разметки) — какие ролики показывать, решает вызывающий код через $videos,
+     * а не константа: так один и тот же ролик не обязан жить в одном и том же блоке.
      *
      * @param string $heading Заголовок блока.
      * @param string $lede Подзаголовок.
+     * @param array<int, array{webm: string, mp4: string, poster: string, width: int, height: int, crop_width: int|null, crop_shift: int|null, autoplay: bool}> $videos Ролики этой секции по порядку показа — обычно Config::VIDEO_*, один или несколько.
      * @return void
      */
-    public static function renderVideo(string $heading, string $lede): void
+    public static function renderVideo(string $heading, string $lede, array $videos): void
     {
         ?>
         <div class="sc-video-section">
@@ -84,8 +89,8 @@ final class Blocks
                         <?php self::renderYoutubeFacade(); ?>
                     </div>
                 <?php else: ?>
-                    <?php foreach (Config::VIDEOS as $index => $video): ?>
-                        <?php self::renderSelfHostedVideo($video, $index + 1); ?>
+                    <?php foreach ($videos as $video): ?>
+                        <?php self::renderSelfHostedVideo($video); ?>
                     <?php endforeach; ?>
                 <?php endif; ?>
             </div>
@@ -116,6 +121,29 @@ final class Blocks
                 <h2><?php echo esc_html($heading); ?></h2>
                 <p><?php echo wp_kses_post($text); ?></p>
             </div>
+        </div>
+        <?php
+    }
+
+    /**
+     * Одна фотография на всю ширину секции, без текста рядом. Нужна как эмоциональная
+     * врезка перед блоком отзывов — фото семьи за продуктом убеждает лучше любого текста.
+     * Картинки на диске нет — блок ничего не выводит, чтобы не показывать битую разметку.
+     *
+     * @param string $image_path Путь к картинке от корня wp-content.
+     * @param string $image_alt Описание картинки для скринридеров и поисковиков.
+     * @return void
+     */
+    public static function renderPhotoBand(string $image_path, string $image_alt): void
+    {
+        // URL с версией или пустая строка, если фото ещё не загружено.
+        $image_url = Config::assetUrl($image_path);
+        if ($image_url === '') {
+            return;
+        }
+        ?>
+        <div class="sc-photo-band">
+            <img class="sc-photo-band-image" src="<?php echo esc_url($image_url); ?>" alt="<?php echo esc_attr($image_alt); ?>" loading="lazy" width="1919" height="900">
         </div>
         <?php
     }
@@ -199,20 +227,23 @@ final class Blocks
         <?php
     }
 
+    /** @var int Счётчик роликов на странице — только для уникального id каждого <video>. */
+    private static int $videoCounter = 0;
+
     /**
-     * Одно собственное видео из uploads. Роликов в блоке может быть несколько — каждый
-     * в своей рамке с собственным аспектом и, если у ролика вшиты чёрные полосы
-     * (crop_width задан), своей обрезкой.
+     * Одно собственное видео из uploads. Роликов на странице может быть несколько,
+     * в разных секциях, — каждое в своей рамке с собственным аспектом и, если у ролика
+     * вшиты чёрные полосы (crop_width задан), своей обрезкой.
      *
-     * Автозапуск — только у одного ролика в блоке (Config::VIDEOS), у остальных —
-     * нативный плеер с кнопкой play: если играют оба сразу, при первом клике
-     * посетителя звук включается у всех разом, и получается каша из двух дорожек.
+     * Автозапуск решает вызывающий код через $video['autoplay']: если в одной секции
+     * играют сразу два ролика, при первом клике посетителя звук включается у всех
+     * разом, и получается каша из дорожек, — так что автозапуск дают максимум одному
+     * ролику в каждой секции, у остальных — нативный плеер с кнопкой play.
      *
-     * @param array{webm: string, mp4: string, poster: string, width: int, height: int, crop_width: int|null, crop_shift: int|null, autoplay: bool} $video Описание ролика из Config::VIDEOS.
-     * @param int $number Порядковый номер ролика — только для уникального id элемента.
+     * @param array{webm: string, mp4: string, poster: string, width: int, height: int, crop_width: int|null, crop_shift: int|null, autoplay: bool} $video Описание ролика — обычно один из Config::VIDEO_*.
      * @return void
      */
-    private static function renderSelfHostedVideo(array $video, int $number): void
+    private static function renderSelfHostedVideo(array $video): void
     {
         // Обрезка нужна не всем роликам: у чистого 16:9 crop_width не задан.
         $is_cropped = $video['crop_width'] !== null;
@@ -224,7 +255,7 @@ final class Blocks
         <div class="sc-video-wrap" style="--video-width:<?php echo esc_attr((string) $video['width']); ?>;--video-ratio:<?php echo esc_attr($video['width'] . '/' . $video['height']); ?>;<?php echo $is_cropped ? '--crop-width:' . esc_attr((string) $video['crop_width']) . ';--crop-shift:' . esc_attr((string) $video['crop_shift']) . ';' : ''; ?>">
             <?php if ($video['autoplay']): ?>
                 <?php // Адреса файлов в data-атрибутах: <source> без src невалиден, а с src браузер начал бы качать сразу. Грузит и запускает video.js по факту появления в зоне видимости. ?>
-                <video id="sc-demo-video-<?php echo esc_attr((string) $number); ?>" class="sc-demo-video<?php echo $cropped_class; ?>" muted loop playsinline preload="none" poster="<?php echo esc_url(Config::assetUrl($video['poster'])); ?>"
+                <video id="sc-demo-video-<?php echo esc_attr((string) ++self::$videoCounter); ?>" class="sc-demo-video<?php echo $cropped_class; ?>" muted loop playsinline preload="none" poster="<?php echo esc_url(Config::assetUrl($video['poster'])); ?>"
                        data-webm="<?php echo esc_url(Config::assetUrl($video['webm'])); ?>"
                        data-mp4="<?php echo esc_url(Config::assetUrl($video['mp4'])); ?>"
                        width="<?php echo esc_attr((string) $video['width']); ?>" height="<?php echo esc_attr((string) $video['height']); ?>"></video>
