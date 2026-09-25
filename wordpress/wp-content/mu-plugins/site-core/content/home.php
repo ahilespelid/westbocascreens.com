@@ -27,6 +27,13 @@ Blocks::renderHero(
     'Get a Free In-Home Estimate'
 );
 
+// Видео сразу под героем: прежний ролик виллы, поднятый на самый верх страницы.
+Blocks::renderVideo(
+    'A West Boca Raton Backyard, Transformed',
+    'From bare patio to a fully screened, all-weather outdoor living space - see what a finished project looks like.',
+    [Config::VIDEO_VILLA]
+);
+
 // Первый блок под героем: фото маркизы с пультом и короткий рассказ о продукте.
 Blocks::renderMediaSplit(
     Config::AWNING_IMAGE,
@@ -38,7 +45,8 @@ Blocks::renderMediaSplit(
 // Видео: ролик YouTube из конфигурации или, пока он не выбран, собственное видео.
 Blocks::renderVideo(
     'See It In Action',
-    'Watch motorized retractable screens and awnings transform an outdoor living space in seconds - rain, wind, or shine.'
+    'Watch motorized retractable screens and awnings transform an outdoor living space in seconds - rain, wind, or shine.',
+    [Config::VIDEO_SCREENS]
 );
 ?>
 
@@ -80,6 +88,14 @@ Blocks::renderVideo(
         <li><a href="/commercial-custom-shade-solutions/">Commercial Custom Shade Solutions →</a></li>
     </ul>
 </div>
+
+<?php
+// Фото семьи за москитной сеткой: эмоциональная врезка перед отзывами соседей.
+Blocks::renderPhotoBand(
+    Config::FAMILY_PHOTO,
+    'A family enjoying their screened-in patio together, protected from bugs by a motorized retractable screen'
+);
+?>
 
 <div class="sc-section">
     <h2>What Your Neighbors Say</h2>

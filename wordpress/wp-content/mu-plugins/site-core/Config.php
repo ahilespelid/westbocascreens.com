@@ -41,45 +41,52 @@ final class Config
     /** @var string Фото выдвижной маркизы для блока о навесах. */
     public const AWNING_IMAGE = '/uploads/site/awning-feature.jpg';
 
+    /** @var string Фото семьи за москитной сеткой — врезка перед отзывами соседей. */
+    public const FAMILY_PHOTO = '/uploads/site/family-screen.jpg';
+
     /**
-     * @var array<int, array{webm: string, mp4: string, poster: string, width: int, height: int, crop_width: int|null, crop_shift: int|null, autoplay: bool}>
-     * Ролики блока «See It In Action» по порядку показа. Каждый — два файла с одним
-     * контентом (webm понимают все современные браузеры, mp4 — для старых Safari и iOS)
-     * плюс заставка первым кадром, чтобы старт был незаметен.
+     * @var array{webm: string, mp4: string, poster: string, width: int, height: int, crop_width: int|null, crop_shift: int|null, autoplay: bool}
+     * Ролик вверху главной, сразу под героем: прежнее промо-видео виллы. Файл не менялся,
+     * взят как есть из предыдущей версии сайта.
      *
      * width/height — видимый размер кадра, он же аспект рамки в CSS. crop_width/crop_shift
-     * заполнены только у роликов со вшитыми чёрными полосами по краям (пиксель в файле
-     * неквадратный): это ширина кадра БЕЗ обрезки и сдвиг влево в тех же единицах,
-     * что и width, — вместе они уводят полосы за рамку с overflow:hidden.
+     * заполнены, потому что у ролика вшиты чёрные полосы по краям (пиксель в файле
+     * неквадратный): crop_width — ширина кадра БЕЗ обрезки, crop_shift — сдвиг влево
+     * в тех же единицах, что и width, — вместе они уводят полосы за рамку с overflow:hidden.
      *
-     * autoplay: true — ролик грузится и стартует сам, как только доскроллили до него
-     * (свой сценарий на каждый такой ролик, звук выключен, пока посетитель не кликнет).
-     * false — ролик ждёт клика: нативные controls, свой звук не включается сам и не
-     * накладывается на другие. Автозапуск оставлен только у одного ролика намеренно:
-     * если играют оба сразу, при первом клике посетителя звук включается у всех разом.
+     * autoplay выключен: этот ролик посетитель запускает сам кнопкой play в нативном
+     * плеере, само не играет — в отличие от VIDEO_SCREENS в середине страницы.
+     *
+     * Формат каждого элемента описан подробнее у Blocks::renderVideo().
      */
-    public const VIDEOS = [
-        [
-            'webm' => '/uploads/site/promo.webm',
-            'mp4' => '/uploads/site/promo.mp4',
-            'poster' => '/uploads/site/promo-poster.jpg',
-            'width' => 1920,
-            'height' => 1080,
-            'crop_width' => null,
-            'crop_shift' => null,
-            'autoplay' => true,
-        ],
-        [
-            // Прежний ролик виллы: файл не менялся, взят как есть из предыдущей версии сайта.
-            'webm' => '/uploads/site/promo-2.webm',
-            'mp4' => '/uploads/site/promo-2.mp4',
-            'poster' => '/uploads/site/promo-2-poster.jpg',
-            'width' => 710,
-            'height' => 478,
-            'crop_width' => 722,
-            'crop_shift' => 6,
-            'autoplay' => false,
-        ],
+    public const VIDEO_VILLA = [
+        'webm' => '/uploads/site/promo-2.webm',
+        'mp4' => '/uploads/site/promo-2.mp4',
+        'poster' => '/uploads/site/promo-2-poster.jpg',
+        'width' => 710,
+        'height' => 478,
+        'crop_width' => 722,
+        'crop_shift' => 6,
+        'autoplay' => false,
+    ];
+
+    /**
+     * @var array{webm: string, mp4: string, poster: string, width: int, height: int, crop_width: int|null, crop_shift: int|null, autoplay: bool}
+     * Ролик блока «See It In Action»: сетка плавно закрывается с пульта. Чистые 16:9,
+     * вшитых полос и неквадратных пикселей нет — crop_width/crop_shift не нужны.
+     *
+     * autoplay включён: единственный ролик на странице, который стартует сам, как
+     * только посетитель до него доскроллил.
+     */
+    public const VIDEO_SCREENS = [
+        'webm' => '/uploads/site/promo.webm',
+        'mp4' => '/uploads/site/promo.mp4',
+        'poster' => '/uploads/site/promo-poster.jpg',
+        'width' => 1920,
+        'height' => 1080,
+        'crop_width' => null,
+        'crop_shift' => null,
+        'autoplay' => true,
     ];
 
     /** @var string Картинка для превью ссылки в мессенджерах (Open Graph). */

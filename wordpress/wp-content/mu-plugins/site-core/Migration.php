@@ -36,7 +36,7 @@ final class Migration
     private const LONG_DASH = ['&mdash;' => '-', '&ndash;' => '-', '—' => '-', '–' => '-'];
 
     /** @var int Номер миграции, до которой должна быть доведена база. */
-    private const VERSION = 5;
+    private const VERSION = 7;
 
     /**
      * Подписка на хуки модуля.
@@ -83,6 +83,16 @@ final class Migration
         if ($current_version < 5) {
             // Блок видео перестроен под несколько роликов (новая разметка,
             // другие width/height) — обновлённый снимок должен попасть в базу.
+            self::syncPagesFromFiles();
+        }
+        if ($current_version < 6) {
+            // Главная перестроена: видео виллы поднято наверх, в «See It In Action»
+            // остался только новый ролик, перед отзывами добавлено фото семьи.
+            self::syncPagesFromFiles();
+        }
+        if ($current_version < 7) {
+            // Автозапуск у ролика виллы наверху выключен: играет только по клику
+            // посетителя, автозапуск остался только у ролика в «See It In Action».
             self::syncPagesFromFiles();
         }
 
